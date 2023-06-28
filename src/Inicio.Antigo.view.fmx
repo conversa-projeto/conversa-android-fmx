@@ -1,0 +1,71 @@
+object InicioAView: TInicioAView
+  Left = 0
+  Top = 0
+  Caption = 'Inicio - Antigo'
+  ClientHeight = 480
+  ClientWidth = 400
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object lytClient: TLayout
+    Align = Client
+    Size.Width = 400.000000000000000000
+    Size.Height = 480.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object lytTitleBox: TLayout
+      Align = Top
+      Size.Width = 400.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object Rectangle1: TRectangle
+        Align = Client
+        Size.Width = 400.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        object btnMenu: TButton
+          Align = Left
+          Size.Width = 50.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'drawertoolbutton'
+          TabOrder = 1
+          Text = 'btnMenu'
+        end
+        object lytTitle: TLayout
+          Align = Client
+          Size.Width = 300.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          object lbTitle: TLabel
+            Align = Client
+            StyledSettings = [FontColor]
+            Size.Width = 300.000000000000000000
+            Size.Height = 50.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 20.000000000000000000
+            TextSettings.Font.StyleExt = {00070000000000000004000000}
+            Text = 'Conversa'
+            TabOrder = 0
+          end
+        end
+        object btnAcao: TButton
+          Align = Right
+          Position.X = 350.000000000000000000
+          Size.Width = 50.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'searchtoolbutton'
+          TabOrder = 0
+          Text = 'btnMenu'
+          OnClick = btnAcaoClick
+        end
+      end
+    end
+  end
+end
