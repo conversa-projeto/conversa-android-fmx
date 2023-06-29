@@ -377,11 +377,14 @@ var
   sIdentificador: string;
 begin
   FForeground := False;
+  FLocalPonta := Default(TPonta);
+  FRemetente := Default(TPonta);
 
   with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
   begin
     Host :=  JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143')));
     ID := getInt(StringToJString('id'), 1);
+    FLocalPonta.ID := ID;
 
     with TJSONObject.Create do
     try
@@ -395,8 +398,6 @@ begin
 
   FThreadTCP := TThread.CreateAnonymousThread(LoopTCP);
 
-  FLocalPonta := Default(TPonta);
-  FRemetente := Default(TPonta);
   IdTCPClient1.Host := Host;
   // Deixa conexão UDP preparada
   IdUDPClient1.Host := Host;
@@ -584,7 +585,7 @@ begin
     begin
       ID := Capture.ToIdBytes;
       IdUDPClient1.SendBuffer(ID);
-      AddLog('Gravação: '+ Length(ID).ToString);
+//      AddLog('Gravação: '+ Length(ID).ToString);
     end
   );
 end;
@@ -595,7 +596,7 @@ begin
     OnAtenderChamada
   else
   if Origem = TOrigemComando.Local then
-    TCPSendCommand(TMethod.AtenderChamada, TSerializer<TPonta>.ParaBytes(FRemetente));
+    TCPSendCommand(TMethod.AtenderChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
 
   if Assigned(FRing) then
     FRing.stop;
@@ -611,18 +612,17 @@ procedure TConversaNotifyServiceModule.InicializarUDP;
 var
   Bytes: TIdBytes;
   lenUDP: Integer;
-  UDP: TUDP;
 begin
   Bytes := [];
   IdUdpClient1.SendBuffer(Bytes);
   SetLength(Bytes, IdUDPClient1.BufferSize);
   lenUDP := IdUdpClient1.ReceiveBuffer(Bytes);
   SetLength(Bytes, lenUDP);
-  UDP := Bytes;
+  FLocalPonta.UDP := Bytes;
   AddLog('InicializarUDP-7');
 
   // Atribui UDP
-  TCPSendCommand(TMethod.AtribuirUDP, UDP);
+  TCPSendCommand(TMethod.AtribuirUDP, FLocalPonta.UDP);
   AddLog('InicializarUDP-8');
 end;
 
@@ -632,7 +632,7 @@ begin
     OnRecusarChamada
   else
   if Origem = TOrigemComando.Local then
-    TCPSendCommand(TMethod.RecusarChamada, TSerializer<TPonta>.ParaBytes(FRemetente));
+    TCPSendCommand(TMethod.RecusarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
 
   if Assigned(FRing) then
     FRing.stop;
@@ -689,7 +689,7 @@ begin
           lenUDP := IdUdpClient1.ReceiveBuffer(Bytes, 10);
           SetLength(Bytes, lenUDP);
 
-          AddLog('Reprodção - '+ lenUDP.ToString);
+//          AddLog('Reprodção - '+ lenUDP.ToString);
           if lenUDP > 1 then
           begin
             FAudioPlay.Write(Bytes);
