@@ -22,7 +22,8 @@ uses
   Extend.Generics.Collections in 'lib\extends\Extend.Generics.Collections.pas',
   Helper.DataSet in 'lib\helper\Helper.DataSet.pas',
   Conversa.Notify.Inicio in 'services\notify\src\Conversa.Notify.Inicio.pas' {ConversaNotifyServiceModule: TAndroidService},
-  Tipos in 'lib\Tipos.pas';
+  Tipos in 'lib\Tipos.pas',
+  Helper.JSON in 'lib\helper\Helper.JSON.pas';
 
 {$R *.res}
 

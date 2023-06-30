@@ -4,38 +4,47 @@ interface
 
 uses
   System.Android.Service,
-  System.Permissions,
   System.Classes,
+  System.JSON,
+  System.Permissions,
   System.SysUtils,
   System.Types,
   System.UITypes,
   System.Variants,
   FMX.Controls,
+  FMX.Controls.Presentation,
   FMX.Dialogs,
   FMX.Forms,
   FMX.Graphics,
-  FMX.Types,
   FMX.Layouts,
+  FMX.Memo,
+  FMX.Memo.Types,
+  FMX.ScrollBox,
+  FMX.StdCtrls,
+  FMX.Types,
+  IdBaseComponent,
+  IdComponent,
+  IdTCPClient,
+  IdTCPConnection,
+  IdUDPBase,
+  IdUDPClient,
   Androidapi.Helpers,
   Androidapi.JNI.App,
-  Conversa.Notify.Inicio,
-  Conversa.Configuracoes.View,
-  Contato.Lista.view,
-  Inicio.Antigo.view,
-  Chamada.view,
-  Tipos,
+  Androidapi.JNI.GraphicsContentViewText,
   Androidapi.Jni.JavaTypes,
-  Androidapi.JNI.Os, IdTCPConnection, IdTCPClient, IdBaseComponent, IdComponent,
-  IdUDPBase, IdUDPClient, Androidapi.JNI.GraphicsContentViewText,
-  FMX.Memo.Types, FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo,
-  FMX.StdCtrls;
+  Androidapi.JNI.Os,
+  Chamada.view,
+  Contato.Lista.view,
+  Conversa.Configuracoes.View,
+  Conversa.Notify.Inicio,
+  Inicio.Antigo.view,
+  Tipos;
 
 type
   TInicioView = class(TForm)
     lytClient: TLayout;
     S2: TIdTCPClient;
     S: TIdUDPClient;
-    Memo1: TMemo;
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -44,12 +53,12 @@ type
     FInicio: TInicioAView;
     ServiceConnection: TLocalServiceConnection;
     Service: TConversaNotifyServiceModule;
-//    FLista: TContatoListaView;
     FChamadaView: TChamadaView;
     procedure ServiceConnected(const LocalService: TAndroidBaseService);
     procedure ServiceDisconnected;
     procedure ExibirTelaInicial;
     procedure AddLog(sMsg: String);
+    procedure ConfigurarTelaLigacao;
   public
     { Public declarations }
 
@@ -72,6 +81,9 @@ var
   InicioView: TInicioView;
 
 implementation
+
+uses
+  Helper.JSON;
 
 {$R *.fmx}
 
@@ -98,16 +110,15 @@ begin
   begin
     setFlags(vFlags, vFlags);
     getDecorView.setSystemUiVisibility(
-TJView.JavaClass.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or TJView.JavaClass.SYSTEM_UI_FLAG_FULLSCREEN
-                or TJView.JavaClass.SYSTEM_UI_FLAG_VISIBLE
-                or TJView.JavaClass.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or TJView.JavaClass.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or TJView.JavaClass.SYSTEM_UI_FLAG_IMMERSIVE
-                or TJView.JavaClass.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+      TJView.JavaClass.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+      TJView.JavaClass.SYSTEM_UI_FLAG_FULLSCREEN or
+      TJView.JavaClass.SYSTEM_UI_FLAG_VISIBLE or
+      TJView.JavaClass.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+      TJView.JavaClass.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+      TJView.JavaClass.SYSTEM_UI_FLAG_IMMERSIVE or
+      TJView.JavaClass.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
     )
   end;
-
 end;
 
 procedure TInicioView.FormDestroy(Sender: TObject);
@@ -211,7 +222,7 @@ begin
     nil,
     procedure
     begin
-      Memo1.Lines.Insert(0, sMsg);
+//      Memo1.Lines.Insert(0, sMsg);
     end
   );
 end;
@@ -223,17 +234,8 @@ begin
     nil,
     procedure
     begin
-      if not Assigned(FChamadaView) then
-        FChamadaView := TChamadaView.New(lytClient)
-      else
-      begin
-        FChamadaView.lytClient.Visible := True;
-        FChamadaView.Rectangle1.Visible := True;
-      end;
-
+      ConfigurarTelaLigacao;
       FChamadaView
-        .Nome(Service.FRemetente.ID.ToString)
-        .Informacoes(Service.FRemetente.UDP.IP +':'+ Service.FRemetente.UDP.Porta.ToString)
         .SetStatus(TChamadaStatus.Recebendo)
         .OnAtender(
           procedure
@@ -258,6 +260,8 @@ end;
 
 procedure TInicioView.OnAtenderChamada;
 begin
+  ConfigurarTelaLigacao;
+
   FChamadaView
     .SetStatus(TChamadaStatus.EmAndamento)
     .OnRecusar(
@@ -294,7 +298,8 @@ end;
 
 procedure TInicioView.IniciarChamada(User: TUsuario);
 begin
-  FChamadaView := TChamadaView.New(lytClient)
+  ConfigurarTelaLigacao;
+  FChamadaView
     .Status(TChamadaStatus.Chamando)
     .Nome(User.Nome)
     .Informacoes(User.Email)
@@ -326,7 +331,7 @@ begin
   TThread.CreateAnonymousThread(
     procedure
     begin
-      Service.AtenderChamada(TOrigemComando.Local);
+      Service.AtenderChamada(TOrigemComando.Local, False);
     end
   ).Start;
 
@@ -338,6 +343,35 @@ begin
         FinalizarChamada(True);
       end
     );
+end;
+
+procedure TInicioView.ConfigurarTelaLigacao;
+var
+  joIdentificador: TJSONObject;
+begin
+  TThread.Synchronize(
+    nil,
+    procedure
+    begin
+      if not Assigned(FChamadaView) then
+        FChamadaView := TChamadaView.New(lytClient)
+      else
+      begin
+        FChamadaView.lytClient.Visible := True;
+        FChamadaView.Rectangle1.Visible := True;
+      end;
+
+
+      joIdentificador := IGStrToJSONObject(Service.FRemetente.Identificador);
+      try
+        FChamadaView
+          .Nome(joIdentificador.IGGetStrDef('nome'))
+          .Informacoes(joIdentificador.IGGetStrDef('email'))
+      finally
+        FreeAndNil(joIdentificador);
+      end;
+    end
+  );
 end;
 
 procedure TInicioView.RecusarChamada(bEnviarComando: Boolean);

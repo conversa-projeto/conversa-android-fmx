@@ -3,43 +3,48 @@
 interface
 
 uses
+  System.Android.Service,
   System.Classes,
+  System.Messaging,
+  System.Permissions,
   System.SysUtils,
   System.Types,
   System.UITypes,
   System.Variants,
-  System.Messaging,
+  Datasnap.DBClient,
   FMX.Controls,
   FMX.Controls.Presentation,
   FMX.Dialogs,
+  FMX.Edit,
   FMX.Forms,
   FMX.Graphics,
   FMX.Layouts,
+  FMX.Memo,
+  FMX.Memo.Types,
   FMX.Objects,
+  FMX.ScrollBox,
   FMX.StdCtrls,
   FMX.Types,
-
-  System.Permissions,
-
-  Conversa.Notify.Inicio,
-
-  System.Android.Service,
-
+  IdBaseComponent,
+  IdComponent,
+  IdGlobal,
+  IdTCPClient,
+  IdTCPConnection,
+  IdUDPBase,
+  IdUDPClient,
+  Androidapi.Helpers,
   AndroidApi.Jni.App,
   AndroidApi.JNI.GraphicsContentViewText,
-  Androidapi.JNI.Os,
-  Androidapi.JNIBridge,
-  Androidapi.Helpers,
-  Androidapi.JNI.Support,
   Androidapi.JNI.JavaTypes,
   Androidapi.JNI.Net,
+  Androidapi.JNI.Os,
   Androidapi.JNI.Provider,
-
-  Contato.Lista.view, IdTCPConnection, IdTCPClient, IdBaseComponent,
-  IdComponent, IdUDPBase, IdUDPClient, IdGlobal,
-  Chamada.view, FMX.Edit, Datasnap.DBClient, FMX.Memo.Types, FMX.ScrollBox,
-  Tipos,
-  FMX.Memo;
+  Androidapi.JNI.Support,
+  Androidapi.JNIBridge,
+  Chamada.view,
+  Contato.Lista.view,
+  Conversa.Notify.Inicio,
+  Tipos;
 
 type
   TInicioAView = class(TForm)
@@ -92,6 +97,8 @@ end;
 procedure TInicioAView.FormCreate(Sender: TObject);
 begin
   FLista := TContatoListaView.New(lytClient);
+  btnAcao.Visible := False;
+  btnMenu.Visible := False;
 end;
 
 end.

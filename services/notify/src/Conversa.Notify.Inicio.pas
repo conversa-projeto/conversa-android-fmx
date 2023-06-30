@@ -3,43 +3,36 @@
 interface
 
 uses
-  System.Android.Service, System.Classes, System.Notification, System.Sensors, System.Sensors.Components,
-
+  System.Android.Service,
+  System.Classes,
   System.JSON,
-//  Androidapi.JNI.App, Androidapi.JNI.GraphicsContentViewText, Androidapi.JNI.Os,
-//  System.Android.Service,
-//  System.Classes,
-//  System.Notification,
-//  System.Sensors,
-//  System.Sensors.Components,
-  System.Threading,
+  System.Notification,
   System.Permissions,
-  Androidapi.Helpers, Androidapi.JNI.JavaTypes, Androidapi.JNI.Support, Androidapi.Log,
-//  FMX.Types,
-  System.SysUtils,
+  System.Sensors,
+  System.Sensors.Components,
   System.StrUtils,
-  //Androidapi.app.KeyguardManager,
+  System.SysUtils,
+  System.Threading,
   IdBaseComponent,
   IdComponent,
+  IdGlobal,
   IdTCPClient,
   IdTCPConnection,
   IdUDPBase,
   IdUDPClient,
-  IdGlobal,
-//  Androidapi.JNI.WiFiManager,
-//
-  Chamada.Audio,
-  Chamada.WakeLock,
-  Chamada.Vibrator.Service,
-//  Chamada.view,
-  Tipos,
-//
-//
+  Androidapi.Helpers,
   Androidapi.JNI.App,
   Androidapi.JNI.GraphicsContentViewText,
+  Androidapi.JNI.JavaTypes,
   Androidapi.JNI.Media,
   Androidapi.Jni.Net,
-  Androidapi.JNI.Os;
+  Androidapi.JNI.Os,
+  Androidapi.JNI.Support,
+  Androidapi.Log,
+  Tipos,
+  Chamada.Audio,
+  Chamada.Vibrator.Service,
+  Chamada.WakeLock;
 
 type
   TOrigemComando = (Desconhecida, Local, Remoto);
@@ -63,43 +56,28 @@ type
     NotificationCallId = -2;
     NotificationChannelCallId = 'com_conversa_notify_service_call_channel_id';
   private
-    FAtivo: Boolean;
     FForeground: Boolean;
     FNotificationManager: JNotificationManager;
     FNotificationBuilder: Japp_NotificationCompat_Builder;
-
     FNotificationBuilderCall: Japp_NotificationCompat_Builder;
     FCallNotify: JNotification;
-//    FWifiM: JWiFiManager;
-
     FThreadTCP: TThread;
     FThreadRecebeAudio: ITask;
     FPararThreadAudio: Boolean;
-
     FAudioCapture: IAudioCapture;
     FAudioPlay: IAudioPlay;
-//
-//
     FWakeLock: IWakeLock;
     FVibrator: IVibratorService;
-//
-//    FChamadaView: TChamadaView;
     FRing: JRingtone;
-
     function GetIntent(const ClassName: string): JIntent;
     function GetNotification: JNotification;
-
     procedure LoopTCP;
     procedure TCPSendCommand(Method: TMethod; Bytes: TIdBytes);
     procedure ReceberChamada;
     procedure IniciarEnvioAudio;
     procedure IniciaAudio;
-
-
     procedure AddLog(sMsg: String; bErro: Boolean = False);
-
     procedure AbrirTela;
-
     procedure EncerrarChamada;
     procedure InicializarUDP;
     procedure DestinatarioOcupado;
@@ -107,7 +85,6 @@ type
     ActivityClassName = 'com.embarcadero.firemonkey.FMXNativeActivity';
     ServiceClassName = 'com.embarcadero.services.ConversaNotify';
   public
-//    MainThread: TThread;
     Host: String;
     ID: Integer;
     FAddLog: TProc<String>;
@@ -120,17 +97,13 @@ type
     OnCancelarChamada: TProc;
     OnDestinatarioOcupado: TProc;
     FRecebendoChamada: Boolean;
-
     TrazerPraFrente: TProc;
-
-//    function GetSynThread: TThread;
-
     function ConectarAoIniciar: Boolean;
     procedure ManterSegundoPlano;
     procedure Conectar;
     procedure StopLocationTracking;
     procedure IniciarChamada(ID: Integer);
-    procedure AtenderChamada(Origem: TOrigemComando);
+    procedure AtenderChamada(Origem: TOrigemComando; bRetomando: Boolean);
     procedure FinalizarChamada(Origem: TOrigemComando);
     procedure RecusarChamada(Origem: TOrigemComando);
     procedure CancelarChamada(Origem: TOrigemComando);
@@ -200,10 +173,6 @@ end;
 
 function TConversaNotifyServiceModule.AndroidServiceStartCommand(const Sender: TObject; const Intent: JIntent; Flags, StartId: Integer): Integer;
 begin
-//  // Checks if the intent object contains an extra indicating that the user tapped on the 'Stop location tracking' notification action.
-//  if JStringToString(Intent.getAction) = ActionStopLocationTracking then
-//    StopLocationTracking;
-
   AddLog('Conversa - Serviço de Notificação Iniciado');
   Result := TJService.JavaClass.START_NOT_STICKY;
 end;
@@ -212,7 +181,6 @@ procedure TConversaNotifyServiceModule.AndroidServiceTaskRemoved(const Sender: T
 var
   Intent: JIntent;
   PendingIntent: JPendingIntent;
-
   function getTimeAfterInSecs(Seconds: Integer): Int64;
   var
     Calendar: JCalendar;
@@ -222,7 +190,6 @@ var
     Result := Calendar.getTimeInMillis;
   end;
 begin
-//  AbrirTela;
   Intent := TJIntent.Create;
   Intent.setClassName(TAndroidHelper.Context, StringToJString(TConversaNotifyServiceModule.ServiceClassName)).setPackage(TAndroidHelper.Context.getPackageName);
   PendingIntent := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 1, Intent, TJPendingIntent.JavaClass.FLAG_ONE_SHOT);
@@ -339,14 +306,6 @@ begin
       .build;
 end;
 
-//function TConversaNotifyServiceModule.GetSynThread: TThread;
-//begin
-//  if Assigned(MainThread) then
-//    Result := MainThread
-//  else
-//    Result := TThread.Current;
-//end;
-
 procedure TConversaNotifyServiceModule.ManterSegundoPlano;
 begin
   if FForeground then
@@ -397,6 +356,7 @@ begin
     try
       AddPair('id', ID);
       AddPair('nome', JStringToString(getString(StringToJString('nome'), StringToJString('nao-informado'))));
+      AddPair('email', JStringToString(getString(StringToJString('email'), StringToJString('nao-informado'))));
       sIdentificador := ToJSON;
     finally
       Free;
@@ -478,7 +438,7 @@ begin
         AddLog('RC: '+ BytesToString(Bytes));
         AddLog('ThreadID: '+ TThread.Current.ThreadID.ToString);
 
-        if Method = TMethod.AtenderChamada then
+        if Method in [TMethod.AtenderChamada] then
           FRemetente.ID := TSerializer<Integer>.DeBytes(Bytes)
         else
         if Method in [TMethod.ReceberChamada, TMethod.RetomarChamada] then
@@ -496,7 +456,7 @@ begin
         case Method of
           TMethod.ReceberChamada: ReceberChamada;
           TMethod.AtenderChamada,
-          TMethod.RetomarChamada: AtenderChamada(TOrigemComando.Remoto);
+          TMethod.RetomarChamada: AtenderChamada(TOrigemComando.Remoto, Method = TMethod.RetomarChamada);
           TMethod.RecusarChamada: RecusarChamada(TOrigemComando.Remoto);
           TMethod.FinalizarChamada: FinalizarChamada(TOrigemComando.Remoto);
           TMethod.CancelarChamada: CancelarChamada(TOrigemComando.Remoto);
@@ -571,15 +531,6 @@ begin
   FRecebendoChamada := True;
   AddLog('ReceberChamada');
 
-//  TThread.Synchronize(
-//    TThread.CurrentThread,
-//  procedure
-//  begin
-//
-//    NotificarLigacao;
-//  end
-//
-//  );
   if Assigned(OnReceberChamada) then
   begin
     AddLog('Método de Recebimento de Chamada!');
@@ -614,13 +565,16 @@ begin
   );
 end;
 
-procedure TConversaNotifyServiceModule.AtenderChamada(Origem: TOrigemComando);
+procedure TConversaNotifyServiceModule.AtenderChamada(Origem: TOrigemComando; bRetomando: Boolean);
 begin
   if (Origem = TOrigemComando.Remoto) and Assigned(OnAtenderChamada) then
     OnAtenderChamada
   else
   if Origem = TOrigemComando.Local then
     TCPSendCommand(TMethod.AtenderChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
+
+  if bRetomando then
+    OnAtenderChamada;
 
   if Assigned(FRing) then
     FRing.stop;
@@ -884,17 +838,6 @@ var
     var Intent := GetIntent(ActivityClassName);
     Result := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 0, Intent, TJPendingIntent.JavaClass.FLAG_IMMUTABLE);
   end;
-
-//  function GetServicePendingIntent: JPendingIntent;
-//  begin
-//    // Gets the intent used to stop this service after the user taps on the 'Stop location tracking' notification action
-//    // button from the ongoing notification that presents location updates to the user.
-//    var Intent := GetIntent(ServiceClassName);
-//    Intent.setAction(StringToJString(ActionStopLocationTracking));
-//
-//    Result := TJPendingIntent.JavaClass.getService(TAndroidHelper.Context, 0, Intent, TJPendingIntent.JavaClass.FLAG_IMMUTABLE);
-//  end;
-
 begin
   if not Assigned(FNotificationBuilderCall) then
   begin
@@ -928,20 +871,5 @@ begin
 
   AddLog('Notificado');
 end;
-
-(*
-
-  // If this service is running in the foreground, this service updates its ongoing notification to present the updated location.
-  // If this service is running in the background, this service sends the updated location to the native activity.
-  if FIsRunningInForeground then
-    FNotificationManager.notify(NotificationId, GetNotification)
-  else
-  begin
-    if Assigned(FLocationUpdated) then
-      FLocationUpdated(NewLocation);
-  end;
-
-
-*)
 
 end.

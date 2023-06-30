@@ -23,6 +23,7 @@ object InicioAView: TInicioAView
       TabOrder = 0
       object Rectangle1: TRectangle
         Align = Client
+        Fill.Color = claDarkgray
         Size.Width = 400.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False

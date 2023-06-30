@@ -19,6 +19,7 @@ object ContatoListaView: TContatoListaView
       ItemEditAppearanceClassName = 'TDynamicAppearance'
       HeaderAppearanceClassName = 'TListHeaderObjects'
       FooterAppearanceClassName = 'TListHeaderObjects'
+      EditMode = True
       Align = Client
       Size.Width = 384.000000000000000000
       Size.Height = 480.000000000000000000
@@ -48,7 +49,12 @@ object ContatoListaView: TContatoListaView
         item
           AppearanceObjectName = 'Text1'
           AppearanceClassName = 'TTextObjectAppearance'
+          Appearance.TextAlign = Leading
+          Appearance.Width = 359.000000000000000000
+          Appearance.Height = 49.000000000000000000
+          Appearance.Align = Center
         end>
+      CanSwipeDelete = False
       OnItemClick = ListView1ItemClick
       OnPullRefresh = ListView1PullRefresh
       PullToRefresh = True

@@ -353,6 +353,7 @@
             <DesignClass>TAndroidService</DesignClass>
         </DCCReference>
         <DCCReference Include="lib\Tipos.pas"/>
+        <DCCReference Include="lib\helper\Helper.JSON.pas"/>
         <JavaReference Include="services\notify\Android64\Debug\ConversaNotify.jar">
             <Disabled/>
             <ContainerId>ClassesdexFile64</ContainerId>
