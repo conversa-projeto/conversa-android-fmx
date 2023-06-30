@@ -18,7 +18,7 @@ type
     Telefone: String;
   end;
 
-  TMethod = (Erro, Registrar, AtribuirIdentificador, AtribuirUDP, IniciarChamada, CancelarChamada, ReceberChamada, AtenderChamada, RetomarChamada, RecusarChamada, FinalizarChamada, ChamadasAtivas, FinalizarTodasChamadas);
+  TMethod = (Erro, Registrar, AtribuirIdentificador, AtribuirUDP, IniciarChamada, CancelarChamada, DestinatarioOcupado, ReceberChamada, AtenderChamada, RetomarChamada, RecusarChamada, FinalizarChamada, ChamadasAtivas, FinalizarTodasChamadas);
 
   TSerializer<T> = class
     class function ParaBytes(const Value: T): TIdBytes;

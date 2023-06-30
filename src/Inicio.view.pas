@@ -1,4 +1,4 @@
-unit Inicio.view;
+﻿unit Inicio.view;
 
 interface
 
@@ -36,11 +36,9 @@ type
     S2: TIdTCPClient;
     S: TIdUDPClient;
     Memo1: TMemo;
-    Button1: TButton;
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
     FInicio: TInicioAView;
@@ -60,6 +58,7 @@ type
     procedure OnRecusarChamada;
     procedure OnFinalizarChamada;
     procedure OnCancelarChamada;
+    procedure OnDestinatarioOcupado;
     procedure VivaVoz(Value: Boolean);
     procedure IniciarChamada(User: TUsuario);
     procedure AtenderChamada(bEnviaComando: Boolean = True);
@@ -180,6 +179,7 @@ begin
   Service.OnReceberChamada := OnReceberChamada;
   Service.OnFinalizarChamada := OnFinalizarChamada;
   Service.OnCancelarChamada := OnFinalizarChamada;
+  Service.OnDestinatarioOcupado := OnDestinatarioOcupado;
   Service.TrazerPraFrente := TrazerPraFrente;
 
   if Service.FRecebendoChamada then
@@ -273,6 +273,19 @@ begin
   OnFinalizarChamada;
 end;
 
+procedure TInicioView.OnDestinatarioOcupado;
+begin
+  FChamadaView.lytClient.Visible := False;
+  FChamadaView.Rectangle1.Visible := False;
+  TThread.Synchronize(
+    nil,
+    procedure
+    begin
+      ShowMessage('O destinatário está ocupado em outra ligação!');
+    end
+  );
+end;
+
 procedure TInicioView.OnFinalizarChamada;
 begin
   FChamadaView.lytClient.Visible := False;
@@ -325,11 +338,6 @@ begin
         FinalizarChamada(True);
       end
     );
-end;
-
-procedure TInicioView.Button1Click(Sender: TObject);
-begin
-  Service.NotificarLigacao;
 end;
 
 procedure TInicioView.RecusarChamada(bEnviarComando: Boolean);

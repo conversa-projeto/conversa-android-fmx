@@ -1,4 +1,4 @@
-unit Conversa.Notify.Inicio;
+Ôªøunit Conversa.Notify.Inicio;
 
 interface
 
@@ -63,6 +63,7 @@ type
     NotificationCallId = -2;
     NotificationChannelCallId = 'com_conversa_notify_service_call_channel_id';
   private
+    FAtivo: Boolean;
     FForeground: Boolean;
     FNotificationManager: JNotificationManager;
     FNotificationBuilder: Japp_NotificationCompat_Builder;
@@ -101,6 +102,7 @@ type
 
     procedure EncerrarChamada;
     procedure InicializarUDP;
+    procedure DestinatarioOcupado;
   public const
     ActivityClassName = 'com.embarcadero.firemonkey.FMXNativeActivity';
     ServiceClassName = 'com.embarcadero.services.ConversaNotify';
@@ -116,6 +118,7 @@ type
     OnReceberChamada: TProc;
     OnFinalizarChamada: TProc;
     OnCancelarChamada: TProc;
+    OnDestinatarioOcupado: TProc;
     FRecebendoChamada: Boolean;
 
     TrazerPraFrente: TProc;
@@ -132,7 +135,7 @@ type
     procedure RecusarChamada(Origem: TOrigemComando);
     procedure CancelarChamada(Origem: TOrigemComando);
     procedure VivaVoz(Value: Boolean);
-    procedure ConectarThread;
+    procedure IniciarThreadConexao;
     procedure NotificarLigacao;
   end;
 
@@ -170,7 +173,7 @@ begin
   // Creates the notification channel that is used by the ongoing notification that presents location updates to the user.
   var NotificationChannel := NotificationCenter.CreateChannel;
   NotificationChannel.Id := NotificationChannelId;
-  NotificationChannel.Title := 'Conversa - ServiÁos';
+  NotificationChannel.Title := 'Conversa - Servi√ßos';
   NotificationChannel.Importance := TImportance.Default;
 
   NotificationCenter.CreateOrUpdateChannel(NotificationChannel);
@@ -178,7 +181,7 @@ begin
   // Creates the notification channel that is used by the ongoing notification that presents location updates to the user.
   var NotificationChannelCall := NotificationCenter.CreateChannel;
   NotificationChannelCall.Id := NotificationChannelCallId;
-  NotificationChannelCall.Title := 'Conversa - LigaÁıes';
+  NotificationChannelCall.Title := 'Conversa - Liga√ß√µes';
   NotificationChannelCall.Importance := TImportance.Default;
   NotificationCenter.CreateOrUpdateChannel(NotificationChannelCall);
 
@@ -189,10 +192,10 @@ begin
   OnFinalizarChamada := nil;
   ManterSegundoPlano;
 
-  AddLog('Conversa - ServiÁo de NotificaÁ„o Criado');
+  AddLog('Conversa - Servi√ßo de Notifica√ß√£o Criado');
 
   if ConectarAoIniciar then
-    ConectarThread;
+    IniciarThreadConexao;
 end;
 
 function TConversaNotifyServiceModule.AndroidServiceStartCommand(const Sender: TObject; const Intent: JIntent; Flags, StartId: Integer): Integer;
@@ -201,7 +204,7 @@ begin
 //  if JStringToString(Intent.getAction) = ActionStopLocationTracking then
 //    StopLocationTracking;
 
-  AddLog('Conversa - ServiÁo de NotificaÁ„o Iniciado');
+  AddLog('Conversa - Servi√ßo de Notifica√ß√£o Iniciado');
   Result := TJService.JavaClass.START_NOT_STICKY;
 end;
 
@@ -260,19 +263,24 @@ begin
       .getBoolean(StringToJString('conectar_automatico'), False);
 end;
 
-procedure TConversaNotifyServiceModule.ConectarThread;
+procedure TConversaNotifyServiceModule.IniciarThreadConexao;
 begin
   TThread.CreateAnonymousThread(
     procedure
     begin
       while True do
       begin
+        if IdTCPClient1.Connected then
+        begin
+          Sleep(500);
+          Continue;
+        end;
+
         try
           Conectar;
           LOGV(PAnsiChar('Conectado!'));
-          Break;
         except on E: Exception do
-          AddLog('Erro na Conex„o!: '+E.Message, True);
+          AddLog('Erro na Conex√£o!: '+E.Message, True);
         end;
       end;
     end
@@ -320,9 +328,9 @@ begin
       .setOngoing(True)
       .setSmallIcon(GetNotificationIconId)
       .setContentIntent(GetActivityPendingIntent)
-      .setContentTitle(StrToJCharSequence('Conex„o com Servidor'))
-      .setContentText(StrToJCharSequence('Mantendo a conex„o'))
-      .setTicker(StrToJCharSequence('Mantendo a conex„o'))
+      .setContentTitle(StrToJCharSequence('Conex√£o com Servidor'))
+      .setContentText(StrToJCharSequence('Mantendo a conex√£o'))
+      .setTicker(StrToJCharSequence('Mantendo a conex√£o'))
   end;
 
   Result :=
@@ -368,7 +376,7 @@ end;
 
 procedure TConversaNotifyServiceModule.TimerUDPTimer(Sender: TObject);
 begin
-  // Mantem a conex„o ativa
+  // Mantem a conex√£o ativa
   IdUdpClient1.SendBuffer([]);
 end;
 
@@ -378,14 +386,13 @@ var
 begin
   FForeground := False;
   FLocalPonta := Default(TPonta);
-  FRemetente := Default(TPonta);
+  FRemetente  := Default(TPonta);
 
   with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
   begin
     Host :=  JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143')));
     ID := getInt(StringToJString('id'), 1);
     FLocalPonta.ID := ID;
-
     with TJSONObject.Create do
     try
       AddPair('id', ID);
@@ -396,32 +403,39 @@ begin
     end;
   end;
 
-  FThreadTCP := TThread.CreateAnonymousThread(LoopTCP);
-
-  IdTCPClient1.Host := Host;
-  // Deixa conex„o UDP preparada
   IdUDPClient1.Host := Host;
   IdUDPClient1.Active := False;
+
   try
+    IdTCPClient1.Host := Host;
     IdTCPClient1.Disconnect;
     IdTCPClient1.Connect;
+  except on E: Exception do
+    raise Exception.Create('Falha ao conectar!');
+  end;
 
+  try
     TCPSendCommand(TMethod.Registrar, TSerializer<Integer>.ParaBytes(ID));
-
-    FThreadTCP.Start;
-
-    // Se identifica no servidor
-    TCPSendCommand(TMethod.AtribuirIdentificador, TSerializer<String>.ParaBytes(sIdentificador));
   except on E: Exception do
     raise Exception.Create('Falha ao registrar!'+ sLineBreak + E.Message);
   end;
+
+  try
+    TCPSendCommand(TMethod.AtribuirIdentificador, TSerializer<String>.ParaBytes(sIdentificador));
+  except on E: Exception do
+    raise Exception.Create('Falha ao se identificar!'+ sLineBreak + E.Message);
+  end;
+
+  // Cria a tread de conex√£o
+  FThreadTCP := TThread.CreateAnonymousThread(LoopTCP);
+  FThreadTCP.Start;
 end;
 
 procedure TConversaNotifyServiceModule.LoopTCP;
 var
   Tamanho: Integer;
   Bytes: TIdBytes;
-  Metod: TMethod;
+  Method: TMethod;
 begin
   while IdTCPClient1.Connected do
   begin
@@ -436,10 +450,10 @@ begin
         if IdTCPClient1.IOHandler.InputBufferIsEmpty then
           Continue;
 
-        Metod := TMethod(IdTCPClient1.IOHandler.ReadByte);
+        Method := TMethod(IdTCPClient1.IOHandler.ReadByte);
         Bytes := [];
 
-        case Metod of
+        case Method of
           TMethod.Erro: AddLog('R - Erro');
           TMethod.Registrar: AddLog('R - Registrar');
           TMethod.IniciarChamada: AddLog('R - IniciarChamada');
@@ -464,19 +478,29 @@ begin
         AddLog('RC: '+ BytesToString(Bytes));
         AddLog('ThreadID: '+ TThread.Current.ThreadID.ToString);
 
-        if Metod = TMethod.AtenderChamada then
+        if Method = TMethod.AtenderChamada then
           FRemetente.ID := TSerializer<Integer>.DeBytes(Bytes)
         else
-        if Metod in [TMethod.ReceberChamada, TMethod.AtenderChamada, TMethod.RetomarChamada] then
+        if Method in [TMethod.ReceberChamada, TMethod.RetomarChamada] then
+        begin
+          if FRemetente.ID = 0 then
+            FRemetente := TSerializer<TPonta>.DeBytes(Bytes)
+          else
+            with TSerializer<TPonta>.DeBytes(Bytes) do
+              TCPSendCommand(TMethod.DestinatarioOcupado, TSerializer<Integer>.ParaBytes(ID))
+        end
+        else
+        if Method = TMethod.AtenderChamada then
           FRemetente := TSerializer<TPonta>.DeBytes(Bytes);
 
-        case Metod of
+        case Method of
           TMethod.ReceberChamada: ReceberChamada;
           TMethod.AtenderChamada,
           TMethod.RetomarChamada: AtenderChamada(TOrigemComando.Remoto);
           TMethod.RecusarChamada: RecusarChamada(TOrigemComando.Remoto);
           TMethod.FinalizarChamada: FinalizarChamada(TOrigemComando.Remoto);
           TMethod.CancelarChamada: CancelarChamada(TOrigemComando.Remoto);
+          TMethod.DestinatarioOcupado: DestinatarioOcupado;
         end;
       finally
         TMonitor.Exit(IdTCPClient1);
@@ -533,7 +557,7 @@ end;
 procedure TConversaNotifyServiceModule.IniciarChamada(ID: Integer);
 begin
   if ID = 0 then
-    raise Exception.Create('Informe um ID v·lido!');
+    raise Exception.Create('Informe um ID v√°lido!');
 
   FWakeLock := TWakeLock.New;
   FRemetente.ID := ID;
@@ -558,7 +582,7 @@ begin
 //  );
   if Assigned(OnReceberChamada) then
   begin
-    AddLog('MÈtodo de Recebimento de Chamada!');
+    AddLog('M√©todo de Recebimento de Chamada!');
     TrazerPraFrente;
     OnReceberChamada;
   end
@@ -585,7 +609,7 @@ begin
     begin
       ID := Capture.ToIdBytes;
       IdUDPClient1.SendBuffer(ID);
-//      AddLog('GravaÁ„o: '+ Length(ID).ToString);
+//      AddLog('Grava√ß√£o: '+ Length(ID).ToString);
     end
   );
 end;
@@ -680,7 +704,7 @@ begin
       lenUDP: Integer;
       Bytes: TIdBytes;
     begin
-      AddLog('ReproduÁ„o - InÌcio');
+      AddLog('Reprodu√ß√£o - In√≠cio');
       while not FPararThreadAudio do
       begin
         try
@@ -689,18 +713,18 @@ begin
           lenUDP := IdUdpClient1.ReceiveBuffer(Bytes, 10);
           SetLength(Bytes, lenUDP);
 
-//          AddLog('ReprodÁ„o - '+ lenUDP.ToString);
+//          AddLog('Reprod√ß√£o - '+ lenUDP.ToString);
           if lenUDP > 1 then
           begin
             FAudioPlay.Write(Bytes);
-//            AddLog('ReprodÁ„o - '+ lenUDP.ToString);
+//            AddLog('Reprod√ß√£o - '+ lenUDP.ToString);
           end;
         except on E: Exception do
           AddLog('IniciaAudio.LoopReproducao: '+ E.Message, True);
         end;
       end;
       FAudioPlay.Stop;
-      AddLog('ReproduÁ„o - Fim');
+      AddLog('Reprodu√ß√£o - Fim');
     end
   );
 
@@ -715,6 +739,12 @@ begin
   if Origem = TOrigemComando.Local then
     TCPSendCommand(TMethod.CancelarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
 
+  EncerrarChamada;
+end;
+
+procedure TConversaNotifyServiceModule.DestinatarioOcupado;
+begin
+  OnDestinatarioOcupado;
   EncerrarChamada;
 end;
 
@@ -767,7 +797,7 @@ end;
 procedure TConversaNotifyServiceModule.VivaVoz(Value: Boolean);
 begin
   if not Assigned(FAudioPlay) then
-    raise Exception.Create('Sem acesso ‡ api de ·udio!');
+    raise Exception.Create('Sem acesso √† api de √°udio!');
 
   if Value then
     FAudioPlay.StreamType(TAudioPlayStreamType.Music)
@@ -877,15 +907,15 @@ begin
     FNotificationBuilderCall := TJapp_NotificationCompat_Builder.JavaClass.init(TAndroidHelper.Context, StringToJString(NotificationChannelCallId));
     FNotificationBuilderCall
       .setSmallIcon(GetNotificationIconId)
-      .setContentTitle(StrToJCharSequence('Recebendo LigaÁ„o'))
-      .setContentText(StrToJCharSequence('Recebendo LigaÁ„o'))
+      .setContentTitle(StrToJCharSequence('Recebendo Liga√ß√£o'))
+      .setContentText(StrToJCharSequence('Recebendo Liga√ß√£o'))
 
       .setContentIntent(JP)
       .setFullScreenIntent(JP, true)
 //      .setPriority(TJNotification.JavaClass.PRIORITY_HIGH)
       .setOngoing(True);
 
-//      .setTicker(StrToJCharSequence('Recebendo LigaÁ„o'));
+//      .setTicker(StrToJCharSequence('Recebendo Liga√ß√£o'));
     AddLog('Builder Criado');
   end;
 
