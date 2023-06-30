@@ -1,4 +1,4 @@
-unit Chamada.Vibrator.Service;
+﻿unit Chamada.Vibrator.Service;
 
 interface
 

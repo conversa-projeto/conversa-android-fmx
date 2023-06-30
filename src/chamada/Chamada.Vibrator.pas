@@ -1,4 +1,4 @@
-unit Chamada.Vibrator;
+﻿unit Chamada.Vibrator;
 
 interface
 

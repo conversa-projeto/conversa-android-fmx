@@ -1,4 +1,4 @@
-unit Contato.Lista.view;
+Ôªøunit Contato.Lista.view;
 
 interface
 
@@ -107,7 +107,7 @@ begin
   if Assigned(IniciarChamada) then
     IniciarChamada(U)
   else
-    raise Exception.Create('MÈtodo n„o atribuÌdo!');
+    raise Exception.Create('M√©todo n√£o atribu√≠do!');
 end;
 
 procedure TContatoListaView.PrepararDataSet;

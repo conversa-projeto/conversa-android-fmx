@@ -1,4 +1,4 @@
-// This software is Copyright (c) 2014 Embarcadero Technologies, Inc.
+﻿// This software is Copyright (c) 2014 Embarcadero Technologies, Inc.
 // You may only use this software if you are an authorized licensee
 // of one of Embarcadero's developer tools products.
 // This software is considered a Redistributable as defined under

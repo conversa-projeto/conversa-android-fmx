@@ -1,4 +1,4 @@
-unit Chamada.Vibrator.Service.Android;
+﻿unit Chamada.Vibrator.Service.Android;
 
 interface
 

@@ -1,4 +1,4 @@
-unit Chamada.WakeLock;
+﻿unit Chamada.WakeLock;
 
 interface
 

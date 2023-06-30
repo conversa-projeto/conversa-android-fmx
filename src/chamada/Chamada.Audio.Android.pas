@@ -1,4 +1,4 @@
-unit Chamada.Audio.Android;
+﻿unit Chamada.Audio.Android;
 
 interface
 
