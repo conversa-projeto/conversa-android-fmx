@@ -17,6 +17,17 @@ object InicioView: TInicioView
     Size.Height = 480.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
+    object Memo1: TMemo
+      Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+      DataDetectorTypes = []
+      Align = Top
+      Size.Width = 340.000000000000000000
+      Size.Height = 209.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Viewport.Width = 336.000000000000000000
+      Viewport.Height = 205.000000000000000000
+    end
   end
   object S2: TIdTCPClient
     BoundIP = 'S'

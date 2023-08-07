@@ -45,6 +45,7 @@ type
     lytClient: TLayout;
     S2: TIdTCPClient;
     S: TIdUDPClient;
+    Memo1: TMemo;
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -222,7 +223,7 @@ begin
     nil,
     procedure
     begin
-//      Memo1.Lines.Insert(0, sMsg);
+      Memo1.Lines.Insert(0, sMsg);
     end
   );
 end;
