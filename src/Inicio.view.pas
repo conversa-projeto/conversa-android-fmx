@@ -168,7 +168,7 @@ begin
     end);
 
   if not TConfiguracoesView.EstaConfigurado then
-    TConfiguracoesView.New(Self, ExibirTelaInicial)
+    TConfiguracoesView.New(Self, ExibirTelaInicial, AddLog)
   else
     ExibirTelaInicial;
 end;
@@ -300,6 +300,7 @@ end;
 procedure TInicioView.IniciarChamada(User: TUsuario);
 begin
   ConfigurarTelaLigacao;
+  AddLog('S.FR.I.'+ Service.FRemetente.Identificador);
   FChamadaView
     .Status(TChamadaStatus.Chamando)
     .Nome(User.Nome)
@@ -336,6 +337,7 @@ begin
     end
   ).Start;
 
+  ConfigurarTelaLigacao;
   FChamadaView
     .SetStatus(TChamadaStatus.EmAndamento)
     .OnRecusar(
@@ -363,11 +365,13 @@ begin
       end;
 
 
+      AddLog('S.FR.I.'+ Service.FRemetente.Identificador);
       joIdentificador := IGStrToJSONObject(Service.FRemetente.Identificador);
       try
-        FChamadaView
-          .Nome(joIdentificador.IGGetStrDef('nome'))
-          .Informacoes(joIdentificador.IGGetStrDef('email'))
+        if Assigned(joIdentificador) then
+          FChamadaView
+            .Nome(joIdentificador.IGGetStrDef('nome'))
+            .Informacoes(joIdentificador.IGGetStrDef('email'))
       finally
         FreeAndNil(joIdentificador);
       end;

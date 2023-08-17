@@ -26,7 +26,7 @@ type
 
   TAudioCapture = class(TInterfacedObject, IAudioCapture)
   public
-    class function New: IAudioCapture;
+    class function New(ProcAddLog: TProc<String>): IAudioCapture;
     function Start(OnCapture: TProc<IAudioCapture>): IAudioCapture; virtual; abstract;
     function Stop: IAudioCapture; virtual; abstract;
     function Read: IAudioCapture; virtual; abstract;
@@ -45,7 +45,7 @@ type
 
   TAudioPlay = class(TInterfacedObject, IAudioPlay)
   public
-    class function New: IAudioPlay;
+    class function New(ProcAddLog: TProc<String>): IAudioPlay;
     function Start: IAudioPlay; virtual; abstract;
     function Stop: IAudioPlay; virtual; abstract;
     function StreamType(const Value: TAudioPlayStreamType): IAudioPlay; virtual; abstract;
@@ -63,10 +63,10 @@ uses
 
 { TAudioCapture }
 
-class function TAudioCapture.New: IAudioCapture;
+class function TAudioCapture.New(ProcAddLog: TProc<String>): IAudioCapture;
 begin
   {$IFDEF ANDROID}
-  Result := Chamada.Audio.Android.TAudioCapture.Create;
+  Result := Chamada.Audio.Android.TAudioCapture.Create(ProcAddLog);
   {$ENDIF ANDROID}
 end;
 
@@ -77,10 +77,10 @@ end;
 
 { TAudioPlay }
 
-class function TAudioPlay.New: IAudioPlay;
+class function TAudioPlay.New(ProcAddLog: TProc<String>): IAudioPlay;
 begin
   {$IFDEF ANDROID}
-  Result := Chamada.Audio.Android.TAudioPlay.Create;
+  Result := Chamada.Audio.Android.TAudioPlay.Create(ProcAddLog);
   {$ENDIF ANDROID}
 end;
 

@@ -448,10 +448,7 @@ begin
           else
             with TSerializer<TPonta>.DeBytes(Bytes) do
               TCPSendCommand(TMethod.DestinatarioOcupado, TSerializer<Integer>.ParaBytes(ID))
-        end
-        else
-        if Method = TMethod.AtenderChamada then
-          FRemetente := TSerializer<TPonta>.DeBytes(Bytes);
+        end;
 
         case Method of
           TMethod.ReceberChamada: ReceberChamada;
@@ -558,9 +555,13 @@ begin
     var
       ID: TIdBytes;
     begin
-      ID := Capture.ToIdBytes;
-      IdUDPClient1.SendBuffer(ID);
-//      AddLog('Gravação: '+ Length(ID).ToString);
+      try
+        ID := Capture.ToIdBytes;
+        IdUDPClient1.SendBuffer(ID);
+        AddLog('Gravação: '+ Length(ID).ToString);
+      except on E: Exception do
+        AddLog('Erro ao Obter Áudio: '+ Length(ID).ToString, True);
+      end;
     end
   );
 end;
@@ -624,7 +625,7 @@ end;
 procedure TConversaNotifyServiceModule.IniciaAudio;
 begin
   try
-    FAudioPlay := TAudioPlay.New;
+    FAudioPlay := TAudioPlay.New(FAddLog);
   except on E: Exception do
     begin
       AddLog('Falha ao criar audio play! Erro: '+ E.Message, True);
@@ -633,7 +634,7 @@ begin
   end;
 
   if not Assigned(FAudioCapture) then
-    FAudioCapture := TAudioCapture.New;
+    FAudioCapture := TAudioCapture.New(FAddLog);
 
   AddLog('FAudioCapture');
 
@@ -671,7 +672,7 @@ begin
           if lenUDP > 1 then
           begin
             FAudioPlay.Write(Bytes);
-//            AddLog('Reprodção - '+ lenUDP.ToString);
+            AddLog('Reprodção - '+ lenUDP.ToString);
           end;
         except on E: Exception do
           AddLog('IniciaAudio.LoopReproducao: '+ E.Message, True);

@@ -30,6 +30,7 @@ type
 
   TAudioCapture = class(Chamada.Audio.TAudioCapture)
   private
+    FAddLog: TProc<String>;
     FRecorder: JAudioRecord;
     FBytes: TJavaArray<Byte>;
     FStatus: TAudioState;
@@ -37,7 +38,7 @@ type
     FOnCapture: TProc<IAudioCapture>;
     FCallBackRequestPermissions: TAudioCaptureRequestPermission;
   public
-    constructor Create;
+    constructor Create(ProcAddLog: TProc<String>);
     destructor Destroy; override;
     function Start(OnCapture: TProc<IAudioCapture>): IAudioCapture; override;
     function Stop: IAudioCapture; override;
@@ -49,6 +50,7 @@ type
 
   TAudioPlay = class(Chamada.Audio.TAudioPlay)
   private
+    FAddLog: TProc<String>;
     FPlay: JAudioTrack;
     FStatus: TAudioState;
     FStreamType: TAudioPlayStreamType;
@@ -56,7 +58,7 @@ type
     function ChangeStatus(Status: TAudioState): IAudioPlay;
     procedure CreateAudioPlay;
   public
-    constructor Create;
+    constructor Create(ProcAddLog: TProc<String>);
     destructor Destroy; override;
     function Start: IAudioPlay; override;
     function Stop: IAudioPlay; override;
@@ -67,23 +69,27 @@ type
 implementation
 
 const
-  sampleRate: Integer = 11025;
+//  sampleRate: Integer = 11025;
+  sampleRate: Integer = 44100;
+//  sampleRate: Integer = 48000;
 
 { TAudioCapture }
 
-constructor TAudioCapture.Create;
+constructor TAudioCapture.Create(ProcAddLog: TProc<String>);
 var
   channelConfig: Integer;
   audioFormat: Integer;
   minBufSize: Integer;
 begin
+  FAddLog := ProcAddLog;
   FStatus := TAudioState.Stopped;
   channelConfig := TJAudioFormat.JavaClass.CHANNEL_IN_MONO;
   audioFormat := TJAudioFormat.JavaClass.ENCODING_PCM_16BIT;
   minBufSize := TJAudioRecord.JavaClass.getMinBufferSize(sampleRate, channelConfig, audioFormat);
+  FAddLog('TAudioCapture.Create.minBufSize : '+ minBufSize.ToString);
 
-  FBytes := TJavaArray<Byte>.Create(minBufSize * 4);
-  FRecorder := TJAudioRecord.JavaClass.init(TJMediaRecorder_AudioSource.JavaClass.MIC, sampleRate, channelConfig, audioFormat, minBufSize * 4);
+  FBytes := TJavaArray<Byte>.Create(minBufSize);
+  FRecorder := TJAudioRecord.JavaClass.init(TJMediaRecorder_AudioSource.JavaClass.MIC, sampleRate, channelConfig, audioFormat, minBufSize);
 end;
 
 destructor TAudioCapture.Destroy;
@@ -127,7 +133,9 @@ end;
 function TAudioCapture.Read: IAudioCapture;
 begin
   Result := Self;
-  (FRecorder as JAudioRecord).read(FBytes, 0, FBytes.Length);
+//  FAddLog('TAudioCapture.Read - Start');
+  (FRecorder as JAudioRecord).read(FBytes, 0, FBytes.Length{, TJAudioRecord.JavaClass.READ_NON_BLOCKING});
+//  FAddLog('TAudioCapture.Read - End');
 end;
 
 function TAudioCapture.ToIdBytes: TIdBytes;
@@ -166,8 +174,9 @@ end;
 
 { TAudioPlay }
 
-constructor TAudioPlay.Create;
+constructor TAudioPlay.Create(ProcAddLog: TProc<String>);
 begin
+  FAddLog := ProcAddLog;
   FStreamType := TAudioPlayStreamType.Call;
   FStatus := TAudioState.Stopped;
   CreateAudioPlay;
@@ -246,7 +255,7 @@ function TAudioPlay.InternalWrite(const ABytes: TJavaArray<Byte>): IAudioPlay;
 begin
   Result := Start;
   if Assigned(FPlay) then
-    (FPlay AS JAudioTrack).write(ABytes, 0, ABytes.Length);
+    (FPlay AS JAudioTrack).write(ABytes, 0, ABytes.Length{, Androidapi.Jni.Media.TJAudioTrack.JavaClass.WRITE_NON_BLOCKING});
 end;
 
 function TAudioPlay.Write(const ABytes: TIdBytes): IAudioPlay;

@@ -44,12 +44,13 @@ type
     { Private declarations }
     FLogin: TJSONObject;
     FOnConfigurado: TProc;
+    FOnAddLog: TProc<String>;
     procedure SalvarConfiguracao;
     procedure Validar(joParams: TJSONObject);
   public
     { Public declarations }
     class function EstaConfigurado: Boolean;
-    class procedure New(AOwner: TFmxObject; OnConfigurado: TProc);
+    class procedure New(AOwner: TFmxObject; OnConfigurado: TProc; OnAddLog: TProc<String>);
   end;
 
 implementation
@@ -62,10 +63,11 @@ begin
     Result := getBoolean(StringToJString('configurado'), False);
 end;
 
-class procedure TConfiguracoesView.New(AOwner: TFmxObject; OnConfigurado: TProc);
+class procedure TConfiguracoesView.New(AOwner: TFmxObject; OnConfigurado: TProc; OnAddLog: TProc<String>);
 begin
   with TConfiguracoesView.Create(AOwner) do
   begin
+    FOnAddLog := OnAddLog;
     FOnConfigurado := OnConfigurado;
     lytClient.Parent := AOwner;
     lytClient.Align := TAlignLayout.Client;
@@ -158,11 +160,12 @@ begin
                 ).Start;
               end
             );
-          except
+          except on E: Exception do
             TThread.Synchronize(
               nil,
               procedure
               begin
+                FOnAddLog('Falha no Login'+ sLineBreak + E.Message);
                 raise Exception.Create('Falha no login!');
               end
             );
