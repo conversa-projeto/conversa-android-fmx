@@ -15,6 +15,14 @@ object InicioAView: TInicioAView
     Size.Height = 480.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
+    object rctFundo: TRectangle
+      Align = Contents
+      Fill.Color = xFF08201D
+      Size.Width = 400.000000000000000000
+      Size.Height = 480.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+    end
     object lytTitleBox: TLayout
       Align = Top
       Size.Width = 400.000000000000000000
@@ -23,20 +31,11 @@ object InicioAView: TInicioAView
       TabOrder = 0
       object Rectangle1: TRectangle
         Align = Client
-        Fill.Color = claDarkgray
+        Fill.Color = xFF127369
         Size.Width = 400.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         Stroke.Kind = None
-        object btnMenu: TButton
-          Align = Left
-          Size.Width = 50.000000000000000000
-          Size.Height = 50.000000000000000000
-          Size.PlatformDefault = False
-          StyleLookup = 'drawertoolbutton'
-          TabOrder = 1
-          Text = 'btnMenu'
-        end
         object lytTitle: TLayout
           Align = Client
           Size.Width = 300.000000000000000000
@@ -45,13 +44,14 @@ object InicioAView: TInicioAView
           TabOrder = 2
           object lbTitle: TLabel
             Align = Client
-            StyledSettings = [FontColor]
+            StyledSettings = []
             Size.Width = 300.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.Size = 20.000000000000000000
             TextSettings.Font.StyleExt = {00070000000000000004000000}
-            Text = 'Conversa'
+            TextSettings.FontColor = claAqua
+            Text = 'Conversa - c'
             TabOrder = 0
           end
         end
@@ -65,6 +65,15 @@ object InicioAView: TInicioAView
           TabOrder = 0
           Text = 'btnMenu'
           OnClick = btnAcaoClick
+        end
+        object btnMenu: TButton
+          Align = Left
+          Size.Width = 50.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'drawertoolbutton'
+          TabOrder = 1
+          Text = 'btnMenu'
         end
       end
     end

@@ -11,6 +11,7 @@ uses
   System.Types,
   System.UITypes,
   System.Variants,
+  System.IOUtils,
   FMX.Controls,
   FMX.Controls.Presentation,
   FMX.Dialogs,
@@ -46,11 +47,14 @@ type
     S2: TIdTCPClient;
     S: TIdUDPClient;
     Memo1: TMemo;
-    procedure FormShow(Sender: TObject);
+
+    Button1: TButton;    procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
+    AddLog: TProc<String>;
     FInicio: TInicioAView;
     ServiceConnection: TLocalServiceConnection;
     Service: TConversaNotifyServiceModule;
@@ -58,7 +62,9 @@ type
     procedure ServiceConnected(const LocalService: TAndroidBaseService);
     procedure ServiceDisconnected;
     procedure ExibirTelaInicial;
-    procedure AddLog(sMsg: String);
+
+    procedure ShowLog(sMsg: String);
+
     procedure ConfigurarTelaLigacao;
   public
     { Public declarations }
@@ -92,6 +98,7 @@ procedure TInicioView.FormCreate(Sender: TObject);
 var
     vFlags: integer;
 begin
+  Memo1.Visible := False;
   ServiceConnection := TLocalServiceConnection.Create;
   ServiceConnection.OnConnected := ServiceConnected;
   ServiceConnection.OnDisconnected := ServiceDisconnected;
@@ -185,7 +192,13 @@ begin
   // Called when the connection between the native activity and the service has been established. It is used to obtain the
   // binder object that allows the direct interaction between the native activity and the service.
   Service := TConversaNotifyServiceModule(LocalService);
-  Service.FAddLog := AddLog;
+//  Service.FShowLog := ShowLog;
+  AddLog :=
+    procedure(Value: String)
+    begin
+      Service.AddLog(Value);
+    end;
+
   Service.OnAtenderChamada := OnAtenderChamada;
   Service.OnRecusarChamada := OnRecusarChamada;
   Service.OnReceberChamada := OnReceberChamada;
@@ -217,12 +230,13 @@ begin
   TAndroidHelper.Activity.startActivity(I);
 end;
 
-procedure TInicioView.AddLog(sMsg: String);
+procedure TInicioView.ShowLog(sMsg: String);
 begin
   TThread.Synchronize(
     nil,
     procedure
     begin
+      Memo1.Visible := True;
       Memo1.Lines.Insert(0, sMsg);
     end
   );
@@ -346,6 +360,32 @@ begin
         FinalizarChamada(True);
       end
     );
+end;
+
+procedure TInicioView.Button1Click(Sender: TObject);
+begin
+//  FPermissionReadExternalStorage := JStringToString(TJManifest_permission.JavaClass.READ_EXTERNAL_STORAGE);
+//  FPermissionWriteExternalStorage := JStringToString(TJManifest_permission.JavaClass.WRITE_EXTERNAL_STORAGE);
+
+  PermissionsService.RequestPermissions(
+    [
+      JStringToString(TJManifest_permission.JavaClass.READ_EXTERNAL_STORAGE),
+      JStringToString(TJManifest_permission.JavaClass.WRITE_EXTERNAL_STORAGE)
+    ],
+    procedure(const APermissions: TClassicStringDynArray; const AGrantResults: TClassicPermissionStatusDynArray)
+    begin
+      if (Length(AGrantResults) = 2) and (AGrantResults[0] = TPermissionStatus.Granted)and (AGrantResults[1] = TPermissionStatus.Granted) then
+      begin
+//        ShowMessage('Acesso concedido!');
+        Memo1.Lines.Insert(0, TPath.Combine(TPath.GetSharedDocumentsPath, 'conversalog.txt'));
+        Memo1.Visible := True;
+        AddLog('Teste');
+      end
+      else
+        ShowMessage('Acesso negado!')
+    end
+  );
+
 end;
 
 procedure TInicioView.ConfigurarTelaLigacao;

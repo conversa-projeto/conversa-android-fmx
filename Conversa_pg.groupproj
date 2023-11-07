@@ -3,11 +3,11 @@
         <ProjectGuid>{C716D6CE-DBAC-480D-B90A-43CB48C33789}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="Conversa.dproj">
-            <Dependencies>services\notify\ConversaNotify.dproj</Dependencies>
-        </Projects>
         <Projects Include="services\notify\ConversaNotify.dproj">
             <Dependencies/>
+        </Projects>
+        <Projects Include="Conversa.dproj">
+            <Dependencies>services\notify\ConversaNotify.dproj</Dependencies>
         </Projects>
     </ItemGroup>
     <ProjectExtensions>
@@ -17,15 +17,6 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="Conversa" DependsOnTargets="ConversaNotify">
-        <MSBuild Projects="Conversa.dproj"/>
-    </Target>
-    <Target Name="Conversa:Clean" DependsOnTargets="ConversaNotify:Clean">
-        <MSBuild Projects="Conversa.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="Conversa:Make" DependsOnTargets="ConversaNotify:Make">
-        <MSBuild Projects="Conversa.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ConversaNotify">
         <MSBuild Projects="services\notify\ConversaNotify.dproj"/>
     </Target>
@@ -35,14 +26,23 @@
     <Target Name="ConversaNotify:Make">
         <MSBuild Projects="services\notify\ConversaNotify.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Conversa" DependsOnTargets="ConversaNotify">
+        <MSBuild Projects="Conversa.dproj"/>
+    </Target>
+    <Target Name="Conversa:Clean" DependsOnTargets="ConversaNotify:Clean">
+        <MSBuild Projects="Conversa.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Conversa:Make" DependsOnTargets="ConversaNotify:Make">
+        <MSBuild Projects="Conversa.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Conversa;ConversaNotify"/>
+        <CallTarget Targets="ConversaNotify;Conversa"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Conversa:Clean;ConversaNotify:Clean"/>
+        <CallTarget Targets="ConversaNotify:Clean;Conversa:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Conversa:Make;ConversaNotify:Make"/>
+        <CallTarget Targets="ConversaNotify:Make;Conversa:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

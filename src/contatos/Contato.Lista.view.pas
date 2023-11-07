@@ -45,15 +45,18 @@ type
     cdsContatosuser_name: TStringField;
     cdsContatosnome: TStringField;
     cdsContatosnumero: TStringField;
-    ListView1: TListView;
-    BindSourceDB1: TBindSourceDB;
+    lvContatos: TListView;
+    bSrcContatos: TBindSourceDB;
     BindingsList: TBindingsList;
     LinkListControlToField1: TLinkListControlToField;
     cdsContatosuser: TStringField;
     cdsContatostelefone: TStringField;
     cdsContatosemail: TStringField;
-    procedure ListView1ItemClick(const Sender: TObject; const AItem: TListViewItem);
-    procedure ListView1PullRefresh(Sender: TObject);
+    stybkPrincipal: TStyleBook;
+    tmrCarregar: TTimer;
+    procedure lvContatosItemClick(const Sender: TObject; const AItem: TListViewItem);
+    procedure lvContatosPullRefresh(Sender: TObject);
+    procedure tmrCarregarTimer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -72,7 +75,7 @@ implementation
 
 { TContatoListaView }
 
-procedure TContatoListaView.ListView1PullRefresh(Sender: TObject);
+procedure TContatoListaView.lvContatosPullRefresh(Sender: TObject);
 begin
   cdsContatos
     .RESTClose
@@ -94,9 +97,14 @@ begin
   Result.cdsContatos
     .RESTClose
     .RESTOpen;
+
+  Result.lvContatos.StyleLookup := 'ListView1Style1';
+  Result.lvContatos.Repaint;
+
+//  Result.tmrCarregar.Enabled := True;
 end;
 
-procedure TContatoListaView.ListView1ItemClick(const Sender: TObject; const AItem: TListViewItem);
+procedure TContatoListaView.lvContatosItemClick(const Sender: TObject; const AItem: TListViewItem);
 var
   U: TUsuario;
 begin
@@ -112,6 +120,14 @@ end;
 
 procedure TContatoListaView.PrepararDataSet;
 begin
+  cdsContatos
+    .RESTClose
+    .RESTOpen;
+end;
+
+procedure TContatoListaView.tmrCarregarTimer(Sender: TObject);
+begin
+  tmrCarregar.Enabled := False;
   cdsContatos
     .RESTClose
     .RESTOpen;

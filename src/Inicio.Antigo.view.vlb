@@ -1,7 +1,4 @@
-﻿[btnMenu]
-Coordinates=129,10,57,51
-
-[lytTitleBox]
+﻿[lytTitleBox]
 Coordinates=146,71,66,33
 
 [lytTitle]
@@ -20,16 +17,16 @@ Coordinates=10,10,55,51
 Visible=False
 Coordinates=451,1,184,33
 
-[ContatoListaView.BindSourceDB1]
-Coordinates=451,1,182,195
-
 [ContatoListaView.cdsContatos]
 Visible=False
 Coordinates=451,1,165,33
 
 []
-Coordinates=250,1,69,33
+Coordinates=129,10,57,51
 
 [lytClient]
 Coordinates=10,114,54,33
+
+[ContatoListaView.bSrcContatos]
+Coordinates=451,1,182,195
 

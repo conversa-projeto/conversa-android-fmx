@@ -21,25 +21,52 @@ uses
   Androidapi.Helpers,
   Androidapi.JNI.JavaTypes,
   Androidapi.JNI.App, IdBaseComponent, IdComponent, IdTCPConnection,
-  IdTCPClient, IdHTTP;
+  IdTCPClient, IdHTTP, FMX.TabControl, FMX.Objects, FMX.Effects;
 
 type
   TConfiguracoesView = class(TForm)
     lytClient: TLayout;
-    Layout1: TLayout;
-    lytServidor: TLayout;
-    lbServidor: TLabel;
-    edtServidor: TEdit;
-    lytUsuario: TLayout;
-    lbUsuario: TLabel;
-    edtUsuario: TEdit;
-    lytSenha: TLayout;
-    lbSenha: TLabel;
-    edtSenha: TEdit;
-    btnConfirmar: TButton;
     IdHTTP1: TIdHTTP;
-    procedure FormShow(Sender: TObject);
-    procedure btnConfirmarClick(Sender: TObject);
+    Layout1: TLayout;
+    TabControl1: TTabControl;
+    StyleBook1: TStyleBook;
+    tshServidor: TTabItem;
+    tshUsuario: TTabItem;
+    tshSenha: TTabItem;
+    lytServidor: TLayout;
+    rctServidor: TRectangle;
+    edtServidor: TEdit;
+    lnServidor: TLine;
+    lytUsuario: TLayout;
+    rctUsuario: TRectangle;
+    txtUsuario: TText;
+    edtUsuario: TEdit;
+    lnUsuario: TLine;
+    lytSenha: TLayout;
+    rctSenha: TRectangle;
+    txtSenha: TText;
+    edtSenha: TEdit;
+    lnSenha: TLine;
+    rctProximo: TRectangle;
+    btnProximo: TSpeedButton;
+    Label1: TLabel;
+    effShdProximo: TShadowEffect;
+    rctAnterior: TRectangle;
+    btnAnterior: TSpeedButton;
+    lblAnterior: TLabel;
+    effShdAnterior: TShadowEffect;
+    lytLogo: TLayout;
+    lytLogoCenter: TLayout;
+    txtServidor: TText;
+    tmrCarregar: TTimer;
+    rctFundo: TRectangle;
+    imgLogoMarca: TImage;
+    procedure btnProximoClick(Sender: TObject);
+    procedure btnAnteriorClick(Sender: TObject);
+    procedure TabControl1Change(Sender: TObject);
+    procedure tmrCarregarTimer(Sender: TObject);
+  private type
+    TMove = (Inicio, Proximo, Anterior);
   private
     { Private declarations }
     FLogin: TJSONObject;
@@ -47,6 +74,7 @@ type
     FOnAddLog: TProc<String>;
     procedure SalvarConfiguracao;
     procedure Validar(joParams: TJSONObject);
+    procedure Mover(Direcao: TMove);
   public
     { Public declarations }
     class function EstaConfigurado: Boolean;
@@ -67,40 +95,52 @@ class procedure TConfiguracoesView.New(AOwner: TFmxObject; OnConfigurado: TProc;
 begin
   with TConfiguracoesView.Create(AOwner) do
   begin
+    Mover(TMove.Inicio);
     FOnAddLog := OnAddLog;
     FOnConfigurado := OnConfigurado;
     lytClient.Parent := AOwner;
     lytClient.Align := TAlignLayout.Client;
+    tmrCarregar.Enabled := True;
   end;
 end;
 
-procedure TConfiguracoesView.btnConfirmarClick(Sender: TObject);
+procedure TConfiguracoesView.btnAnteriorClick(Sender: TObject);
 begin
-  if edtServidor.Text.Trim.IsEmpty then
-    raise Exception.Create('Informe o servidor!');
-
-  if edtUsuario.Text.Trim.IsEmpty then
-    raise Exception.Create('Informe o email!');
-
-  if edtSenha.Text.Trim.IsEmpty then
-    raise Exception.Create('Informe a senha!');
-
-  Validar(
-    TJSONObject.Create
-      .AddPair('host', edtServidor.Text)
-      .AddPair('email', edtUsuario.Text)
-      .AddPair('senha', edtSenha.Text)
-  );
+  Mover(TMove.Anterior);
 end;
 
-procedure TConfiguracoesView.FormShow(Sender: TObject);
+procedure TConfiguracoesView.btnProximoClick(Sender: TObject);
 begin
-  with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
+  Mover(TMove.Proximo);
+end;
+
+procedure TConfiguracoesView.Mover(Direcao: TMove);
+begin
+  if (Direcao = TMove.Proximo) and (TabControl1.ActiveTab.Index = 2) then
   begin
-    edtServidor.Text :=  JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143')));
-    edtUsuario.Text := IntToStr(getInt(StringToJString('usuario'), 1));
-    edtSenha.Text := JStringToString(getString(StringToJString('senha'), StringToJString('')));
+    if edtServidor.Text.Trim.IsEmpty then
+      raise Exception.Create('Informe o servidor!');
+
+    if edtUsuario.Text.Trim.IsEmpty then
+      raise Exception.Create('Informe o email!');
+
+    if edtSenha.Text.Trim.IsEmpty then
+      raise Exception.Create('Informe a senha!');
+
+    Validar(
+      TJSONObject.Create
+        .AddPair('host', edtServidor.Text)
+        .AddPair('email', edtUsuario.Text)
+        .AddPair('senha', edtSenha.Text)
+    );
   end;
+
+  case Direcao of
+    TMove.Inicio: TabControl1.First(TTabTransition.None);
+    TMove.Proximo: TabControl1.Next;
+    TMove.Anterior: TabControl1.Previous;
+  end;
+  rctAnterior.Visible := TabControl1.ActiveTab.Index > 0;
 end;
 
 procedure TConfiguracoesView.SalvarConfiguracao;
@@ -115,6 +155,31 @@ begin
     putBoolean(StringToJString('configurado'), True);
     putBoolean(StringToJString('conectar_automatico'), True);
     apply;
+  end;
+end;
+
+procedure TConfiguracoesView.TabControl1Change(Sender: TObject);
+begin
+  rctAnterior.Visible := TabControl1.ActiveTab.Index > 0;
+end;
+
+procedure TConfiguracoesView.tmrCarregarTimer(Sender: TObject);
+begin
+  tmrCarregar.Enabled := False;
+  with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
+  begin
+    try
+      edtServidor.Text :=  JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143')));
+    except
+    end;
+    try
+    edtUsuario.Text := JStringToString(getString(StringToJString('email'), StringToJString('')));
+    except
+    end;
+    try
+    edtSenha.Text := JStringToString(getString(StringToJString('senha'), StringToJString('')));
+    except
+    end;
   end;
 end;
 

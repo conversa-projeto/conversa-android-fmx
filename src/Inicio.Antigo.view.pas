@@ -51,10 +51,11 @@ type
     lytClient: TLayout;
     lytTitleBox: TLayout;
     Rectangle1: TRectangle;
-    btnMenu: TButton;
     lytTitle: TLayout;
     btnAcao: TButton;
     lbTitle: TLabel;
+    rctFundo: TRectangle;
+    btnMenu: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnAcaoClick(Sender: TObject);
   private
@@ -97,8 +98,8 @@ end;
 procedure TInicioAView.FormCreate(Sender: TObject);
 begin
   FLista := TContatoListaView.New(lytClient);
-  btnAcao.Visible := False;
-  btnMenu.Visible := False;
+//  btnAcao.Visible := False;
+//  btnMenu.Visible := False;
 end;
 
 end.

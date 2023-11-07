@@ -14,7 +14,7 @@ object InicioView: TInicioView
   object lytClient: TLayout
     Align = Client
     Size.Width = 340.000000000000000000
-    Size.Height = 271.000000000000000000
+    Size.Height = 207.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 1
   end
@@ -29,6 +29,16 @@ object InicioView: TInicioView
     Viewport.Width = 336.000000000000000000
     Viewport.Height = 205.000000000000000000
   end
+  object Button1: TButton
+    Align = Top
+    Position.Y = 209.000000000000000000
+    Size.Width = 340.000000000000000000
+    Size.Height = 64.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 4
+    Text = 'Button1'
+    OnClick = Button1Click
+  end
   object S2: TIdTCPClient
     BoundIP = 'S'
     ConnectTimeout = 0
@@ -39,7 +49,6 @@ object InicioView: TInicioView
     Top = 21
   end
   object S: TIdUDPClient
-    BroadcastEnabled = True
     BoundIP = 'S'
     Host = '10.0.5.65'
     Port = 49000
