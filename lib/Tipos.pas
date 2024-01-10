@@ -5,6 +5,8 @@ interface
 uses
   System.SysUtils,
   System.JSON.Serializers,
+  System.TypInfo,
+  Rtti,
   IdGlobal;
 
 {$SCOPEDENUMS ON}
@@ -81,12 +83,18 @@ end;
 class function TSerializer<T>.DeBytes(const Value: TIdBytes): T;
 var
   js: TJsonSerializer;
+  s: String;
 begin
-  js := TJsonSerializer.Create;
   try
-    Result := js.Deserialize<T>(IndyTextEncoding_UTF8.GetString(Value));
-  finally
-    FreeAndNil(js);
+    js := TJsonSerializer.Create;
+    try
+      s := IndyTextEncoding_UTF8.GetString(Value);
+      Result := js.Deserialize<T>(s);
+    finally
+      FreeAndNil(js);
+    end;
+  except on E: Exception do
+    raise Exception.Create('DeBytes('+ GetTypeName(TypeInfo(T)) +'): '+ E.Message +' | '+ s);
   end;
 end;
 

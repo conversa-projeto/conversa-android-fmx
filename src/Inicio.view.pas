@@ -47,8 +47,8 @@ type
     S2: TIdTCPClient;
     S: TIdUDPClient;
     Memo1: TMemo;
-
-    Button1: TButton;    procedure FormShow(Sender: TObject);
+    Button1: TButton;
+    procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -62,13 +62,10 @@ type
     procedure ServiceConnected(const LocalService: TAndroidBaseService);
     procedure ServiceDisconnected;
     procedure ExibirTelaInicial;
-
     procedure ShowLog(sMsg: String);
-
     procedure ConfigurarTelaLigacao;
   public
     { Public declarations }
-
     procedure OnAtenderChamada;
     procedure OnReceberChamada;
     procedure OnRecusarChamada;
@@ -80,7 +77,6 @@ type
     procedure AtenderChamada(bEnviaComando: Boolean = True);
     procedure FinalizarChamada(bEnviarComando: Boolean = True);
     procedure RecusarChamada(bEnviarComando: Boolean = True);
-
     procedure TrazerPraFrente;
   end;
 
@@ -104,14 +100,11 @@ begin
   ServiceConnection.OnDisconnected := ServiceDisconnected;
   ServiceConnection.BindService(TConversaNotifyServiceModule.ServiceClassName);
 
-
   vFlags :=
     TJWindowManager_LayoutParams.JavaClass.FLAG_TURN_SCREEN_ON or
 //    TJWindowManager_LayoutParams.JavaClass.FLAG_DISMISS_KEYGUARD or
     TJWindowManager_LayoutParams.JavaClass.FLAG_SHOW_WHEN_LOCKED or
     TJWindowManager_LayoutParams.JavaClass.FLAG_KEEP_SCREEN_ON;
-
-
 
 
   with TAndroidHelper.Activity.getWindow do
@@ -131,6 +124,7 @@ end;
 
 procedure TInicioView.FormDestroy(Sender: TObject);
 begin
+  Service.FShowLog := nil;
   ServiceConnection.UnbindService;
   FreeAndNil(ServiceConnection);
 end;
@@ -173,7 +167,6 @@ begin
 //        PostRationaleProc;
 //      end);
     end);
-
   if not TConfiguracoesView.EstaConfigurado then
     TConfiguracoesView.New(Self, ExibirTelaInicial, AddLog)
   else
@@ -192,13 +185,12 @@ begin
   // Called when the connection between the native activity and the service has been established. It is used to obtain the
   // binder object that allows the direct interaction between the native activity and the service.
   Service := TConversaNotifyServiceModule(LocalService);
-//  Service.FShowLog := ShowLog;
+  Service.FShowLog := ShowLog;
   AddLog :=
     procedure(Value: String)
     begin
       Service.AddLog(Value);
     end;
-
   Service.OnAtenderChamada := OnAtenderChamada;
   Service.OnRecusarChamada := OnRecusarChamada;
   Service.OnReceberChamada := OnReceberChamada;
@@ -206,7 +198,6 @@ begin
   Service.OnCancelarChamada := OnFinalizarChamada;
   Service.OnDestinatarioOcupado := OnDestinatarioOcupado;
   Service.TrazerPraFrente := TrazerPraFrente;
-
   if Service.FRecebendoChamada then
   begin
     OnReceberChamada;
@@ -218,6 +209,7 @@ procedure TInicioView.ServiceDisconnected;
 begin
   // Called when the connection between the native activity and the service has been unexpectedly lost (e.g. when the user
   // manually stops the service using the 'Settings' system application).
+  Service.FShowLog := nil;
   Service := nil;
 end;
 
@@ -236,8 +228,11 @@ begin
     nil,
     procedure
     begin
-      Memo1.Visible := True;
-      Memo1.Lines.Insert(0, sMsg);
+      try
+        Memo1.Visible := True;
+        Memo1.Lines.Insert(0, sMsg);
+      except
+      end;
     end
   );
 end;
@@ -276,7 +271,6 @@ end;
 procedure TInicioView.OnAtenderChamada;
 begin
   ConfigurarTelaLigacao;
-
   FChamadaView
     .SetStatus(TChamadaStatus.EmAndamento)
     .OnRecusar(
@@ -307,6 +301,9 @@ end;
 
 procedure TInicioView.OnFinalizarChamada;
 begin
+  if not Assigned(FChamadaView) then
+    Exit;
+
   FChamadaView.lytClient.Visible := False;
   FChamadaView.Rectangle1.Visible := False;
 end;
@@ -333,7 +330,6 @@ begin
         ).Start;
       end
     );
-
   TThread.CreateAnonymousThread(
     procedure
     begin
@@ -344,14 +340,14 @@ end;
 
 procedure TInicioView.AtenderChamada(bEnviaComando: Boolean);
 begin
+  ConfigurarTelaLigacao;
+
   TThread.CreateAnonymousThread(
     procedure
     begin
       Service.AtenderChamada(TOrigemComando.Local, False);
     end
   ).Start;
-
-  ConfigurarTelaLigacao;
   FChamadaView
     .SetStatus(TChamadaStatus.EmAndamento)
     .OnRecusar(
@@ -366,7 +362,6 @@ procedure TInicioView.Button1Click(Sender: TObject);
 begin
 //  FPermissionReadExternalStorage := JStringToString(TJManifest_permission.JavaClass.READ_EXTERNAL_STORAGE);
 //  FPermissionWriteExternalStorage := JStringToString(TJManifest_permission.JavaClass.WRITE_EXTERNAL_STORAGE);
-
   PermissionsService.RequestPermissions(
     [
       JStringToString(TJManifest_permission.JavaClass.READ_EXTERNAL_STORAGE),
@@ -385,7 +380,6 @@ begin
         ShowMessage('Acesso negado!')
     end
   );
-
 end;
 
 procedure TInicioView.ConfigurarTelaLigacao;
@@ -403,7 +397,6 @@ begin
         FChamadaView.lytClient.Visible := True;
         FChamadaView.Rectangle1.Visible := True;
       end;
-
 
       AddLog('S.FR.I.'+ Service.FRemetente.Identificador);
       joIdentificador := IGStrToJSONObject(Service.FRemetente.Identificador);
@@ -429,6 +422,8 @@ begin
       Service.RecusarChamada(TOrigemComando.Local);
     end
   ).Start;
+  if Assigned(FChamadaView) then
+    FreeAndNil(FChamadaView);
 end;
 
 procedure TInicioView.FinalizarChamada(bEnviarComando: Boolean);
@@ -441,6 +436,8 @@ begin
       Service.FinalizarChamada(TOrigemComando.Local);
     end
   ).Start;
+  if Assigned(FChamadaView) then
+    FreeAndNil(FChamadaView);
 end;
 
 procedure TInicioView.VivaVoz(Value: Boolean);

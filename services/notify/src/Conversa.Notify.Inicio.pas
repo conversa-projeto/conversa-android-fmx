@@ -13,6 +13,7 @@ uses
   System.StrUtils,
   System.SysUtils,
   System.Threading,
+  System.IOUtils,
   IdBaseComponent,
   IdComponent,
   IdGlobal,
@@ -37,12 +38,10 @@ uses
 type
   TOrigemComando = (Desconhecida, Local, Remoto);
   TLocationUpdated = procedure(const NewLocation: TLocationCoord2D) of object;
-
   TConversaNotifyServiceModule = class(TAndroidService)
     NotificationCenter: TNotificationCenter;
     IdUDPClient1: TIdUDPClient;
     IdTCPClient1: TIdTCPClient;
-
     procedure AndroidServiceCreate(Sender: TObject);
     function AndroidServiceStartCommand(const Sender: TObject; const Intent: JIntent; Flags, StartId: Integer): Integer;
     function AndroidServiceBind(const Sender: TObject; const AnIntent: JIntent): JIBinder;
@@ -56,6 +55,7 @@ type
     NotificationCallId = -2;
     NotificationChannelCallId = 'com_conversa_notify_service_call_channel_id';
   private
+    FAddlog: TProc<String>;
     FForeground: Boolean;
     FNotificationManager: JNotificationManager;
     FNotificationBuilder: Japp_NotificationCompat_Builder;
@@ -80,13 +80,14 @@ type
     procedure EncerrarChamada;
     procedure InicializarUDP;
     procedure DestinatarioOcupado;
+    procedure Save(s: String);
   public const
     ActivityClassName = 'com.embarcadero.firemonkey.FMXNativeActivity';
     ServiceClassName = 'com.embarcadero.services.ConversaNotify';
   public
     Host: String;
     ID: Integer;
-    FAddLog: TProc<String>;
+    FShowLog: TProc<String>;
     FLocalPonta: TPonta;
     FRemetente: TPonta;
     OnAtenderChamada: TProc;
@@ -109,11 +110,9 @@ type
     procedure VivaVoz(Value: Boolean);
     procedure IniciarThreadConexao;
     procedure NotificarLigacao;
-
-    procedure Save(s: String);
-    procedure SaveLog(sMsg: String);
-    procedure AddLog(sMsg: String); overload;
     procedure AddLog(sMsg: String; bErro: Boolean); overload;
+    procedure AddLog(sMsg: String); overload;
+    procedure SaveLog(sMsg: String);
   end;
 
 var
@@ -154,58 +153,63 @@ procedure TConversaNotifyServiceModule.AddLog(sMsg: String; bErro: Boolean);
 begin
 //  if not bErro then
 //    Exit;
-
-//  Sleep(1);
-//  sMsg := FormatDateTime('YYYY/mm/dd HH:nn:ss.zzz', Now) +' | '+ sMsg;
-//
-//  SaveLog(sMsg);
-
+  Sleep(1);
+  sMsg := FormatDateTime('YYYY/mm/dd HH:nn:ss.zzz', Now) +' | '+ sMsg;
+  SaveLog(sMsg);
+//  Exit;
 //  LOGV(PAnsiChar(AnsiString('Conversa: '+ sMsg)));
 //
-//  if Assigned(FShowLog) then
-//    FShowLog(sMsg);
+  try
+    if Assigned(FShowLog) then
+      FShowLog(sMsg);
+  except
+  end;
 end;
 
 procedure TConversaNotifyServiceModule.Save(s: String);
-//var
-//  sPath: String;
+var
+  sPath: String;
 begin
-//  Exit;
-//  try
-//    sPath := TPath.Combine(TPath.GetSharedDocumentsPath, 'conversalog4.txt').ToLower;
-//    with TStringList.Create do
-//    try
-//      if TFile.Exists(sPath) then
-//      try
-//        LoadFromFile(sPath);
-//      except
-//      end;
-//
-//      Insert(0, s);
-////      TFile.WriteAllText(sPath, Text);
-//      SaveToFile(sPath);
-//    finally
-//      Free;
-//    end;
-//  except on E: Exception do
-//    if Assigned(FShowLog) then
-//     FShowLog('Erro ao Salvar:'+ E.Message);
-//  end;
+  Exit;
+  try
+    sPath := TPath.Combine(TPath.GetSharedDocumentsPath, 'conversalog6.txt').ToLower;
+    with TStringList.Create do
+    try
+      if TFile.Exists(sPath) then
+      try
+        LoadFromFile(sPath);
+      except
+      end;
+      Insert(0, s);
+//      TFile.WriteAllText(sPath, Text);
+      SaveToFile(sPath);
+    finally
+      Free;
+    end;
+  except on E: Exception do
+    try
+      if Assigned(FShowLog) then
+       FShowLog('Erro ao Salvar:'+ E.Message);
+    except
+    end;
+  end;
 end;
 
 procedure TConversaNotifyServiceModule.SaveLog(sMsg: String);
 begin
-  try
-    Save('OFT-'+ sMsg);
-  except
-  end;
-  TThread.Synchronize(
-    nil,
-    procedure
-    begin
-      Save('T-'+sMsg);
-    end
-  );
+  Exit;
+//  if InMainThread then
+    Save({'InMainThread:True - '+ }sMsg)
+//  else
+//  begin
+//    TThread.Synchronize(
+//      nil,
+//      procedure
+//      begin
+////        Save('InMainThread:True - '+ sMsg);
+//      end
+//    );
+//  end;
 end;
 
 procedure TConversaNotifyServiceModule.AndroidServiceCreate(Sender: TObject);
@@ -216,31 +220,25 @@ begin
     begin
       Addlog(Value)
     end;
-
   // Creates the notification channel that is used by the ongoing notification that presents location updates to the user.
   var NotificationChannel := NotificationCenter.CreateChannel;
   NotificationChannel.Id := NotificationChannelId;
   NotificationChannel.Title := 'Conversa - Serviços';
   NotificationChannel.Importance := TImportance.Default;
-
   NotificationCenter.CreateOrUpdateChannel(NotificationChannel);
-
   // Creates the notification channel that is used by the ongoing notification that presents location updates to the user.
   var NotificationChannelCall := NotificationCenter.CreateChannel;
   NotificationChannelCall.Id := NotificationChannelCallId;
   NotificationChannelCall.Title := 'Conversa - Ligações';
   NotificationChannelCall.Importance := TImportance.Default;
   NotificationCenter.CreateOrUpdateChannel(NotificationChannelCall);
-
   // The Run-Time Library does not allow all customizations needed for the ongoing notification used in this demo application.
   // For the mentioned reason, this demo application uses the native APIs for handling notifications.
   FNotificationManager := TJNotificationManager.Wrap(TAndroidHelper.Context.getSystemService(TJContext.JavaClass.NOTIFICATION_SERVICE));
   OnReceberChamada := nil;
   OnFinalizarChamada := nil;
   ManterSegundoPlano;
-
 //  AddLog('AndroidServiceCreate');
-
   if ConectarAoIniciar then
     IniciarThreadConexao;
   AddLog('AndroidServiceCreate - F');
@@ -267,12 +265,12 @@ var
     Result := Calendar.getTimeInMillis;
   end;
 begin
-  AddLog('AndroidServiceTaskRemoved - I');
+//  AddLog('AndroidServiceTaskRemoved - I');
   Intent := TJIntent.Create;
   Intent.setClassName(TAndroidHelper.Context, StringToJString(TConversaNotifyServiceModule.ServiceClassName)).setPackage(TAndroidHelper.Context.getPackageName);
   PendingIntent := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 1, Intent, TJPendingIntent.JavaClass.FLAG_ONE_SHOT);
   TAndroidHelper.AlarmManager.&set(TJAlarmManager.JavaClass.RTC_WAKEUP, getTimeAfterInSecs(100), PendingIntent);
-  AddLog('AndroidServiceTaskRemoved - F');
+//  AddLog('AndroidServiceTaskRemoved - F');
 end;
 
 function TConversaNotifyServiceModule.AndroidServiceBind(const Sender: TObject; const AnIntent: JIntent): JIBinder;
@@ -288,14 +286,14 @@ end;
 
 procedure TConversaNotifyServiceModule.AndroidServiceRebind(const Sender: TObject; const AnIntent: JIntent);
 begin
-  AddLog('AndroidServiceRebind');
-//  // Called when the native activity starts to be visible (goes back to the foreground state) and binds once again to this service.
+//  AddLog('AndroidServiceRebind');
+  // Called when the native activity starts to be visible (goes back to the foreground state) and binds once again to this service.
 //  JavaService.stopForeground(True);
 end;
 
 function TConversaNotifyServiceModule.AndroidServiceUnBind(const Sender: TObject; const AnIntent: JIntent): Boolean;
 begin
-  AddLog('AndroidServiceUnBind');
+//  AddLog('AndroidServiceUnBind');
 //  // Called when the native activity stops to be visible (goes to the background state) and unbinds from this service.
 //  // The native activity stopped to be visible and, therefore, this service needs to run in the foreground, otherwise,
 //  // it is affected by the background location limits introduced as part of Android 8.0. Running a service in the foreground
@@ -321,13 +319,9 @@ end;
 procedure TConversaNotifyServiceModule.IniciarThreadConexao;
 begin
 //  AddLog('IniciarThreadConexao');
-
   {
-
     Nãao está salvando quando é thread e serviço
-
   }
-
   TThread.CreateAnonymousThread(
     procedure
     begin
@@ -339,7 +333,6 @@ begin
           Sleep(500);
           Continue;
         end;
-
         try
           Conectar;
           AddLog('Conectado!');
@@ -361,13 +354,11 @@ begin
 end;
 
 function TConversaNotifyServiceModule.GetNotification: JNotification;
-
   function GetNotificationIconId: Integer;
   begin
     // Gets the notification icon's resource id. Otherwise, fall backs to the application icon's resource id.
     Result := TAndroidHelper.Context.getResources.getIdentifier(StringToJString('drawable/ic_notification'), nil, TAndroidHelper.Context.getPackageName);
   end;
-
   function GetActivityPendingIntent: JPendingIntent;
   begin
     // Gets the intent used to start the native activity after the user taps on the ongoing notification that presents
@@ -375,7 +366,6 @@ function TConversaNotifyServiceModule.GetNotification: JNotification;
     var Intent := GetIntent(ActivityClassName);
     Result := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 0, Intent, TJPendingIntent.JavaClass.FLAG_IMMUTABLE);
   end;
-
 //  function GetServicePendingIntent: JPendingIntent;
 //  begin
 //    // Gets the intent used to stop this service after the user taps on the 'Stop location tracking' notification action
@@ -385,7 +375,6 @@ function TConversaNotifyServiceModule.GetNotification: JNotification;
 //
 //    Result := TJPendingIntent.JavaClass.getService(TAndroidHelper.Context, 0, Intent, TJPendingIntent.JavaClass.FLAG_IMMUTABLE);
 //  end;
-
 begin
   AddLog('GetNotification - I');
   if not Assigned(FNotificationBuilder) then
@@ -400,7 +389,6 @@ begin
       .setContentText(StrToJCharSequence('Mantendo a conexão'))
       .setTicker(StrToJCharSequence('Mantendo a conexão'))
   end;
-
   Result :=
     FNotificationBuilder
       .setWhen(TJDate.Create.getTime)
@@ -413,19 +401,16 @@ begin
   AddLog('ManterSegundoPlano - I');
   if FForeground then
     Exit;
-
   // Starting this service turns it into a started service and, therefore, it can run in the foreground for undefined
   // time and provide real-time location updates. After calling the 'startService' procedure, this service becomes
   // a bound and started service. That beind said, this service is destroyed only after the native activity unbinds
   // from it and this service calls the 'stopSelf' procedure.
   TAndroidHelper.Context.startService(GetIntent(ServiceClassName));
-
   // Called when the native activity stops to be visible (goes to the background state) and unbinds from this service.
   // The native activity stopped to be visible and, therefore, this service needs to run in the foreground, otherwise,
   // it is affected by the background location limits introduced as part of Android 8.0. Running a service in the foreground
   // requires an ongoing notification to be present to the user in order to indicate that the application is actively running.
   JavaService.startForeground(NotificationId, GetNotification);
-
   FForeground := True;
   AddLog('ManterSegundoPlano - F');
 end;
@@ -448,13 +433,15 @@ var
   sIdentificador: string;
 begin
   AddLog('Conectar - I');
+  {
+  FALHOU BEM AQUI
+  }
   FForeground := False;
   FLocalPonta := Default(TPonta);
   FRemetente  := Default(TPonta);
-
   with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
   begin
-    AddLog('Conectar - I');
+    AddLog('Conectar - Obter parâmetros');
     Host :=  JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143')));
     ID := getInt(StringToJString('id'), 1);
     FLocalPonta.ID := ID;
@@ -468,30 +455,32 @@ begin
       Free;
     end;
   end;
-
+  AddLog('Conectar - Definie Host UDP');
   IdUDPClient1.Host := Host;
   IdUDPClient1.Active := False;
-
   try
+    AddLog('Conectar - Desconecta TCP');
+    IdTCPClient1.Disconnect;
+    AddLog('Conectar - Definie Host TCP');
     IdTCPClient1.Host := Host;
+    AddLog('Conectar - Conecta TCP');
     IdTCPClient1.Disconnect;
     IdTCPClient1.Connect;
   except on E: Exception do
     raise Exception.Create('Falha ao conectar!');
   end;
-
   try
+    AddLog('Conectar - Registra');
     TCPSendCommand(TMethod.Registrar, TSerializer<Integer>.ParaBytes(ID));
   except on E: Exception do
     raise Exception.Create('Falha ao registrar!'+ sLineBreak + E.Message);
   end;
-
   try
+    AddLog('Conectar - Atribui Identificador');
     TCPSendCommand(TMethod.AtribuirIdentificador, TSerializer<String>.ParaBytes(sIdentificador));
   except on E: Exception do
     raise Exception.Create('Falha ao se identificar!'+ sLineBreak + E.Message);
   end;
-
   // Cria a tread de conexão
   FThreadTCP := TThread.CreateAnonymousThread(LoopTCP);
   FThreadTCP.Start;
@@ -511,19 +500,17 @@ begin
       TMonitor.Enter(IdTCPClient1);
       try
         // Verifica se desconectou
-        AddLog('LoopTCP - CheckForDisconnect');
+//        AddLog('LoopTCP - CheckForDisconnect');
         IdTCPClient1.IOHandler.CheckForDisconnect;
         // Espera receber os dados
-        AddLog('LoopTCP - CheckForDataOnSource');
+//        AddLog('LoopTCP - CheckForDataOnSource');
         IdTCPClient1.IOHandler.CheckForDataOnSource(10);
         // Verifica se tem dados
-        AddLog('LoopTCP - InputBufferIsEmpty');
+//        AddLog('LoopTCP - InputBufferIsEmpty');
         if IdTCPClient1.IOHandler.InputBufferIsEmpty then
           Continue;
-
         Method := TMethod(IdTCPClient1.IOHandler.ReadByte);
         Bytes := [];
-
         case Method of
           TMethod.Erro: AddLog('R - Erro');
           TMethod.Registrar: AddLog('R - Registrar');
@@ -537,18 +524,14 @@ begin
           TMethod.ChamadasAtivas: AddLog('R - ChamadasAtivas');
           TMethod.FinalizarTodasChamadas: AddLog('R - FinalizarTodasChamadas');
         end;
-
         Tamanho := IdTCPClient1.IOHandler.ReadInt32;
         AddLog('RT: '+ Tamanho.ToString);
-
         if Tamanho > 0 then
           IdTCPClient1.IOHandler.ReadBytes(Bytes, Tamanho)
         else
           Bytes := [];
-
         AddLog('RC: '+ BytesToString(Bytes));
         AddLog('ThreadID: '+ TThread.Current.ThreadID.ToString);
-
         if Method in [TMethod.AtenderChamada] then
           FRemetente.ID := TSerializer<Integer>.DeBytes(Bytes)
         else
@@ -560,7 +543,6 @@ begin
             with TSerializer<TPonta>.DeBytes(Bytes) do
               TCPSendCommand(TMethod.DestinatarioOcupado, TSerializer<Integer>.ParaBytes(ID))
         end;
-
         case Method of
           TMethod.ReceberChamada: ReceberChamada;
           TMethod.AtenderChamada,
@@ -602,9 +584,7 @@ begin
         TMethod.ChamadasAtivas: AddLog('E - ChamadasAtivas');
         TMethod.FinalizarTodasChamadas: AddLog('E - FinalizarTodasChamadas');
       end;
-
       Tamanho := Length(Bytes);
-
       AddLog('T: '+ Tamanho.ToString);
       AddLog('C: '+ BytesToString(Bytes));
       IdTCPClient1.IOHandler.Write(Byte(Method));
@@ -626,7 +606,6 @@ procedure TConversaNotifyServiceModule.IniciarChamada(ID: Integer);
 begin
   if ID = 0 then
     raise Exception.Create('Informe um ID válido!');
-
   FWakeLock := TWakeLock.New;
   FRemetente.ID := ID;
   TCPSendCommand(TMethod.IniciarChamada, TSerializer<Integer>.ParaBytes(ID));
@@ -638,7 +617,6 @@ var
 begin
   FRecebendoChamada := True;
   AddLog('ReceberChamada');
-
   if Assigned(OnReceberChamada) then
   begin
     AddLog('Método de Recebimento de Chamada!');
@@ -650,11 +628,9 @@ begin
     AddLog('Tentando iniciar o app!');
     AbrirTela;
   end;
-
   aUri := TJRingtoneManager.JavaClass.getActualDefaultRingtoneUri(TAndroidHelper.Context, TJRingtoneManager.JavaClass.TYPE_RINGTONE);
   FRing := TJRingtoneManager.JavaClass.getRingtone(TAndroidHelper.Context, aUri);
   FRing.play;
-
   FWakeLock := TWakeLock.New;
   FVibrator := TVibratorService.New.Call;
 end;
@@ -679,41 +655,45 @@ end;
 
 procedure TConversaNotifyServiceModule.AtenderChamada(Origem: TOrigemComando; bRetomando: Boolean);
 begin
+  InicializarUDP;
   if (Origem = TOrigemComando.Remoto) and Assigned(OnAtenderChamada) then
     OnAtenderChamada
   else
   if Origem = TOrigemComando.Local then
     TCPSendCommand(TMethod.AtenderChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
-
   if bRetomando then
     OnAtenderChamada;
-
   if Assigned(FRing) then
     FRing.stop;
-
   FVibrator := nil;
   FRing := nil;
-
-  InicializarUDP;
   IniciaAudio;
 end;
 
 procedure TConversaNotifyServiceModule.InicializarUDP;
 var
-  Bytes: TIdBytes;
+  BytesUDP: TIdBytes;
   lenUDP: Integer;
+  iQtd: Integer;
 begin
-  Bytes := [];
-  IdUdpClient1.SendBuffer(Bytes);
-  SetLength(Bytes, IdUDPClient1.BufferSize);
-  lenUDP := IdUdpClient1.ReceiveBuffer(Bytes);
-  SetLength(Bytes, lenUDP);
-  FLocalPonta.UDP := Bytes;
-  AddLog('InicializarUDP-7');
-
-  // Atribui UDP
-  TCPSendCommand(TMethod.AtribuirUDP, FLocalPonta.UDP);
-  AddLog('InicializarUDP-8');
+  for iQtd := 0 to 2 do
+  begin
+    try
+      BytesUDP := [];
+      IdUdpClient1.SendBuffer(BytesUDP);
+      SetLength(BytesUDP, IdUDPClient1.BufferSize);
+      lenUDP := IdUdpClient1.ReceiveBuffer(BytesUDP);
+      SetLength(BytesUDP, lenUDP);
+      FLocalPonta.UDP := BytesUDP;
+      AddLog('InicializarUDP-7');
+      // Atribui UDP
+      TCPSendCommand(TMethod.AtribuirUDP, FLocalPonta.UDP);
+      AddLog('InicializarUDP-8');
+      Break;
+    except on E: Exception do
+      AddLog('Erro ao Inicializar UDP: '+ E.Message);
+    end;
+  end;
 end;
 
 procedure TConversaNotifyServiceModule.RecusarChamada(Origem: TOrigemComando);
@@ -723,13 +703,10 @@ begin
   else
   if Origem = TOrigemComando.Local then
     TCPSendCommand(TMethod.RecusarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
-
   if Assigned(FRing) then
     FRing.stop;
-
   FVibrator := nil;
   FRing := nil;
-
   EncerrarChamada;
 end;
 
@@ -743,12 +720,9 @@ begin
       Exit;
     end;
   end;
-
   if not Assigned(FAudioCapture) then
     FAudioCapture := TAudioCapture.New(FAddlog);
-
   AddLog('FAudioCapture');
-
   if FAudioCapture.PermissionGranted then
     IniciarEnvioAudio
   else
@@ -759,11 +733,8 @@ begin
           IniciarEnvioAudio;
       end
     );
-
   AddLog('FAudioCapture');
-
   FPararThreadAudio := False;
-
   FThreadRecebeAudio := TTask.Create(
     procedure
     var
@@ -778,7 +749,6 @@ begin
           SetLength(Bytes, IdUDPClient1.BufferSize);
           lenUDP := IdUdpClient1.ReceiveBuffer(Bytes, 10);
           SetLength(Bytes, lenUDP);
-
 //          AddLog('Reprodção - '+ lenUDP.ToString);
           if lenUDP > 1 then
           begin
@@ -793,7 +763,6 @@ begin
       AddLog('Reprodução - Fim');
     end
   );
-
   FThreadRecebeAudio.Start;
 end;
 
@@ -804,7 +773,6 @@ begin
   else
   if Origem = TOrigemComando.Local then
     TCPSendCommand(TMethod.CancelarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
-
   EncerrarChamada;
 end;
 
@@ -821,7 +789,6 @@ begin
   else
   if Origem = TOrigemComando.Local then
     TCPSendCommand(TMethod.FinalizarChamada, TSerializer<Integer>.ParaBytes(FLocalPonta.ID));
-
   EncerrarChamada;
 end;
 
@@ -829,34 +796,28 @@ procedure TConversaNotifyServiceModule.EncerrarChamada;
 begin
   if Assigned(FWakeLock) then
     FWakeLock := nil;
-
   if Assigned(FRing) then
     FRing.stop;
-
   if Assigned(FVibrator) then
     FVibrator := nil;
-
   if Assigned(FRing) then
     FRing := nil;
-
   AddLog('Finalizar ThreadAudio');
   FPararThreadAudio := True;
   if Assigned(FThreadRecebeAudio) then
     FThreadRecebeAudio.Wait(500);
-
   if Assigned(FAudioCapture) then
   begin
     FAudioCapture.Stop;
     FAudioCapture := nil;
   end;
-
   if Assigned(FAudioPlay) then
   begin
     FAudioPlay.Stop;
     FAudioPlay := nil;
   end;
-
   AddLog('ThreadAudio Finalizada');
+  FLocalPonta.UDP := Default(TUDP);
   FRemetente := Default(TPonta);
 end;
 
@@ -864,7 +825,6 @@ procedure TConversaNotifyServiceModule.VivaVoz(Value: Boolean);
 begin
   if not Assigned(FAudioPlay) then
     raise Exception.Create('Sem acesso à api de áudio!');
-
   if Value then
     FAudioPlay.StreamType(TAudioPlayStreamType.Music)
   else
@@ -875,7 +835,6 @@ procedure TConversaNotifyServiceModule.AbrirTela;
 var
   Intent: JIntent;
 //  PendingIntent: JPendingIntent;
-
   function getTimeAfterInSecs(Seconds: Integer): Int64;
   var
     Calendar: JCalendar;
@@ -890,48 +849,38 @@ begin
     .setClassName(TAndroidHelper.Context.getPackageName, StringToJString('com.embarcadero.firemonkey.FMXNativeActivity'))
     .setPackage(TAndroidHelper.Context.getPackageName)
 
-
 //    .setAction(StringToJString('android.intent.action.MAIN'))
     .setAction(TJIntent.JavaClass.ACTION_MAIN)
-
 //    .addCategory(StringToJString('android.intent.category.LAUNCHER'))
     .addCategory(TJIntent.JavaClass.CATEGORY_LAUNCHER)
 //    .set
     .addFlags(TJIntent.JavaClass.FLAG_ACTIVITY_NEW_TASK)
     .addFlags(TJIntent.JavaClass.FLAG_ACTIVITY_SINGLE_TOP)
-
 //    .addFlags(TJWindowManager_LayoutParams.JavaClass.FLAG_DISMISS_KEYGUARD)
 //    .addFlags(TJWindowManager_LayoutParams.JavaClass.FLAG_SHOW_WHEN_LOCKED)
 //    .addFlags(TJWindowManager_LayoutParams.JavaClass.FLAG_TURN_SCREEN_ON)
 //    .addFlags(TJWindowManager_LayoutParams.JavaClass.FLAG_KEEP_SCREEN_ON)
 //    .addFlags(TJWindowManager_LayoutParams.JavaClass.TYPE_APPLICATION_OVERLAY)
-
 //    .addFlags(TJWindowManager_LayoutParams.JavaClass.FLAG_DISMISS_KEYGUARD or
 //      TJWindowManager_LayoutParams.JavaClass.FLAG_SHOW_WHEN_LOCKED or
 //      TJWindowManager_LayoutParams.JavaClass.FLAG_TURN_SCREEN_ON or
 //      TJWindowManager_LayoutParams.JavaClass.FLAG_KEEP_SCREEN_ON or
 //      TJWindowManager_LayoutParams.JavaClass.TYPE_APPLICATION_OVERLAY
 //    )
-
     .putExtra(StringToJString('conversa-action'), StringToJString('ReceberChamada'));
-
   TAndroidHelper.Context.startActivity(Intent);
-
 //  PendingIntent := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 1, Intent, TJPendingIntent.JavaClass.FLAG_ONE_SHOT);
 //  TAndroidHelper.AlarmManager.&set(TJAlarmManager.JavaClass.RTC_WAKEUP, getTimeAfterInSecs(30), PendingIntent);
 end;
 
 procedure TConversaNotifyServiceModule.NotificarLigacao;
-
 var
   JP: JPendingIntent;
-
   function GetNotificationIconId: Integer;
   begin
     // Gets the notification icon's resource id. Otherwise, fall backs to the application icon's resource id.
     Result := TAndroidHelper.Context.getResources.getIdentifier(StringToJString('drawable/ic_notification'), nil, TAndroidHelper.Context.getPackageName);
   end;
-
   function GetActivityPendingIntent: JPendingIntent;
   begin
     // Gets the intent used to start the native activity after the user taps on the ongoing notification that presents
@@ -943,34 +892,28 @@ begin
   if not Assigned(FNotificationBuilderCall) then
   begin
     AddLog('Criando Builder');
-
     JP := GetActivityPendingIntent;
-
 //    TJapp_NotificationCompat_Style.
-
     FNotificationBuilderCall := TJapp_NotificationCompat_Builder.JavaClass.init(TAndroidHelper.Context, StringToJString(NotificationChannelCallId));
     FNotificationBuilderCall
       .setSmallIcon(GetNotificationIconId)
       .setContentTitle(StrToJCharSequence('Recebendo Ligação'))
       .setContentText(StrToJCharSequence('Recebendo Ligação'))
-
       .setContentIntent(JP)
       .setFullScreenIntent(JP, true)
 //      .setPriority(TJNotification.JavaClass.PRIORITY_HIGH)
       .setOngoing(True);
-
 //      .setTicker(StrToJCharSequence('Recebendo Ligação'));
     AddLog('Builder Criado');
   end;
-
   FCallNotify := FNotificationBuilderCall
     .setCategory(TJNotification.JavaClass.CATEGORY_CALL)
 //    .setWhen(TJDate.Create.getTime)
     .build;
-
   FNotificationManager.notify(NotificationCallId, FCallNotify);
-
   AddLog('Notificado');
 end;
 
 end.
+
+Erro na ligação, ao reconectar, adicionar novo UDP
