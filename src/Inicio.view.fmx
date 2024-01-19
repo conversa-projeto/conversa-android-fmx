@@ -1,16 +1,20 @@
 object InicioView: TInicioView
   Left = 0
   Top = 0
+  Border.Styling = False
   Caption = 'Inicio'
   ClientHeight = 480
   ClientWidth = 340
+  Fill.Color = xFF232323
+  Fill.Kind = Solid
+  Quality = HighQuality
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  DesignerMasterStyle = 0
+  DesignerMasterStyle = 3
   object lytClient: TLayout
     Align = Client
     Size.Width = 340.000000000000000000
@@ -26,8 +30,8 @@ object InicioView: TInicioView
     Size.Height = 209.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
-    Viewport.Width = 336.000000000000000000
-    Viewport.Height = 205.000000000000000000
+    Viewport.Width = 332.000000000000000000
+    Viewport.Height = 201.000000000000000000
   end
   object Button1: TButton
     Align = Top

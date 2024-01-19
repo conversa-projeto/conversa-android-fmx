@@ -3,6 +3,7 @@
 interface
 
 uses
+  FMX.Objects,
   System.Android.Service,
   System.Classes,
   System.JSON,
@@ -175,6 +176,20 @@ end;
 
 procedure TInicioView.ExibirTelaInicial;
 begin
+  Button1.Visible := False;
+
+//  Self.Left := -5;
+//  Self.Width := Self.Width + 10;
+//
+//  Self.Top := -5;
+//  Self.Height := Self.Height + 10;
+//
+//  Rectangle1.Height := Self.Height + 100;
+//  Rectangle1.Width := Self.Width + 100;
+//  Rectangle1.Position.Y := - 50;
+//  Rectangle1.Position.X := - 50;
+
+//  Exit;
   FInicio := TInicioAView.New(lytClient);
   FInicio.ClientView := lytClient;
   FInicio.OnIniciaChamada(Self.IniciarChamada);
@@ -229,8 +244,9 @@ begin
     procedure
     begin
       try
-        Memo1.Visible := True;
-        Memo1.Lines.Insert(0, sMsg);
+//      Button1.Visible := False;
+//        Memo1.Visible := True;
+//        Memo1.Lines.Insert(0, sMsg);
       except
       end;
     end

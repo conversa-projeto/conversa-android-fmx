@@ -170,14 +170,17 @@ begin
   begin
     try
       edtServidor.Text :=  JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143')));
+      edtServidor.Text := '192.168.1.5';
     except
     end;
     try
     edtUsuario.Text := JStringToString(getString(StringToJString('email'), StringToJString('')));
+    edtUsuario.Text := 'd1@hotmail.com';
     except
     end;
     try
     edtSenha.Text := JStringToString(getString(StringToJString('senha'), StringToJString('')));
+    edtSenha.Text := '123';
     except
     end;
   end;

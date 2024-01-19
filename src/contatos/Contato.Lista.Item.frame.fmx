@@ -1,0 +1,99 @@
+object ContatoItem: TContatoItem
+  Size.Width = 300.000000000000000000
+  Size.Height = 60.000000000000000000
+  Size.PlatformDefault = False
+  object rctClient: TRectangle
+    Align = Client
+    Fill.Color = xFF232323
+    Size.Width = 300.000000000000000000
+    Size.Height = 60.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    OnClick = rctClientClick
+    object Line1: TLine
+      Align = Bottom
+      LineType = Diagonal
+      Margins.Left = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 59.000000000000000000
+      Size.Width = 280.000000000000000000
+      Size.Height = 1.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Color = xFF282828
+    end
+    object lytClient: TLayout
+      Align = Client
+      Padding.Left = 10.000000000000000000
+      Padding.Top = 5.000000000000000000
+      Padding.Right = 10.000000000000000000
+      Padding.Bottom = 5.000000000000000000
+      Size.Width = 300.000000000000000000
+      Size.Height = 59.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object lytFoto: TLayout
+        Align = Left
+        Position.X = 10.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 44.000000000000000000
+        Size.Height = 49.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object crclFoto: TCircle
+          Align = Client
+          Fill.Color = xFF232323
+          Size.Width = 44.000000000000000000
+          Size.Height = 49.000000000000000000
+          Size.PlatformDefault = False
+          object lblLetraFoto: TLabel
+            Align = Center
+            AutoSize = True
+            StyledSettings = [Family, Style]
+            Margins.Bottom = 4.000000000000000000
+            Size.Width = 18.000000000000000000
+            Size.Height = 33.333332061767580000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 25.000000000000000000
+            TextSettings.FontColor = claRed
+            TextSettings.HorzAlign = Center
+            TextSettings.WordWrap = False
+            Text = 'D'
+            TabOrder = 0
+          end
+        end
+      end
+      object lytInformacoes: TLayout
+        Align = Client
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 3.000000000000000000
+        Margins.Bottom = 3.000000000000000000
+        Size.Width = 231.000000000000000000
+        Size.Height = 43.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object lblNome: TLabel
+          Align = Client
+          StyledSettings = [Family, Size]
+          Size.Width = 231.000000000000000000
+          Size.Height = 26.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.FontColor = claWhite
+          Text = '[Nome]'
+          TabOrder = 1
+        end
+        object lblInformacao1: TLabel
+          Align = Bottom
+          StyledSettings = [Family, Style]
+          Position.Y = 26.000000000000000000
+          Size.Width = 231.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.FontColor = claGray
+          Text = '[Informa'#231#227'o]'
+          TabOrder = 0
+        end
+      end
+    end
+  end
+end

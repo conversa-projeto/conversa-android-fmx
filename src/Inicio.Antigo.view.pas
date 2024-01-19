@@ -56,6 +56,7 @@ type
     lbTitle: TLabel;
     rctFundo: TRectangle;
     btnMenu: TButton;
+    Rectangle2: TRectangle;
     procedure FormCreate(Sender: TObject);
     procedure btnAcaoClick(Sender: TObject);
   private

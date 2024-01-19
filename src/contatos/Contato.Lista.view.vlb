@@ -10,11 +10,11 @@ Coordinates=600,30,106,234
 Visible=True
 
 []
-Coordinates=206,10,46,51
+Coordinates=0,0,92,234
+Visible=True
 
 [cdsContatos]
-Coordinates=660,60,86,36
-Visible=False
+Coordinates=756,70,86,36
 
 [cdsContatosid]
 Coordinates=233,157,96,36
@@ -28,9 +28,6 @@ Coordinates=214,53,118,36
 [cdsContatosnumero]
 Coordinates=214,1,129,36
 
-[BindingsList]
-Coordinates=118,170,84,36
-
 [cdsContatostelefone]
 Coordinates=136,237,132,36
 
@@ -39,4 +36,7 @@ Coordinates=17,241,117,36
 
 [cdsContatosuser]
 Coordinates=381,1,111,36
+
+[tmrCarregar]
+Coordinates=306,267,84,36
 

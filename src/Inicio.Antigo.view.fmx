@@ -9,6 +9,15 @@ object InicioAView: TInicioAView
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
   DesignerMasterStyle = 0
+  object Rectangle2: TRectangle
+    Align = Contents
+    Enabled = True
+    Fill.Color = claSkyblue
+    Size.Width = 400.000000000000000000
+    Size.Height = 480.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+  end
   object lytClient: TLayout
     Align = Client
     Size.Width = 400.000000000000000000
@@ -17,7 +26,7 @@ object InicioAView: TInicioAView
     TabOrder = 0
     object rctFundo: TRectangle
       Align = Contents
-      Fill.Color = xFF08201D
+      Fill.Color = xFF232323
       Size.Width = 400.000000000000000000
       Size.Height = 480.000000000000000000
       Size.PlatformDefault = False
@@ -31,34 +40,34 @@ object InicioAView: TInicioAView
       TabOrder = 0
       object Rectangle1: TRectangle
         Align = Client
-        Fill.Color = xFF127369
+        Fill.Color = xFF282828
         Size.Width = 400.000000000000000000
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         Stroke.Kind = None
         object lytTitle: TLayout
           Align = Client
-          Size.Width = 300.000000000000000000
+          Size.Width = 304.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 2
           object lbTitle: TLabel
             Align = Client
             StyledSettings = []
-            Size.Width = 300.000000000000000000
+            Size.Width = 304.000000000000000000
             Size.Height = 50.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.Size = 20.000000000000000000
             TextSettings.Font.StyleExt = {00070000000000000004000000}
-            TextSettings.FontColor = claAqua
-            Text = 'Conversa - c'
+            TextSettings.FontColor = claWhite
+            Text = 'Conversa-'
             TabOrder = 0
           end
         end
         object btnAcao: TButton
           Align = Right
-          Position.X = 350.000000000000000000
-          Size.Width = 50.000000000000000000
+          Position.X = 352.000000000000000000
+          Size.Width = 48.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'searchtoolbutton'
@@ -68,10 +77,10 @@ object InicioAView: TInicioAView
         end
         object btnMenu: TButton
           Align = Left
-          Size.Width = 50.000000000000000000
+          Size.Width = 48.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
-          StyleLookup = 'drawertoolbutton'
+          StyleLookup = 'detailstoolbutton'
           TabOrder = 1
           Text = 'btnMenu'
         end

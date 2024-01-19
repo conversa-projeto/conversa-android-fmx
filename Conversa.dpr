@@ -23,7 +23,8 @@ uses
   Helper.DataSet in 'lib\helper\Helper.DataSet.pas',
   Tipos in 'lib\Tipos.pas',
   Helper.JSON in 'lib\helper\Helper.JSON.pas',
-  Conversa.Notify.Inicio in 'services\notify\src\Conversa.Notify.Inicio.pas' {ConversaNotifyServiceModule: TAndroidService};
+  Conversa.Notify.Inicio in 'services\notify\src\Conversa.Notify.Inicio.pas' {ConversaNotifyServiceModule: TAndroidService},
+  Contato.Lista.Item.frame in 'src\contatos\Contato.Lista.Item.frame.pas' {ContatoItem: TFrame};
 
 {$R *.res}
 

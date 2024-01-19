@@ -915,5 +915,3 @@ begin
 end;
 
 end.
-
-Erro na ligação, ao reconectar, adicionar novo UDP
