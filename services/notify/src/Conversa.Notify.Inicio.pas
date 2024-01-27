@@ -30,6 +30,7 @@ uses
   Androidapi.JNI.Os,
   Androidapi.JNI.Support,
   Androidapi.Log,
+  Conversa.Connection.List,
   Tipos,
   Chamada.Audio,
   Chamada.Vibrator.Service,
@@ -98,6 +99,7 @@ type
     OnDestinatarioOcupado: TProc;
     FRecebendoChamada: Boolean;
     TrazerPraFrente: TProc;
+    ConnectionList: TConnectionRegisterList;
     function ConectarAoIniciar: Boolean;
     procedure ManterSegundoPlano;
     procedure Conectar;
@@ -215,6 +217,7 @@ end;
 procedure TConversaNotifyServiceModule.AndroidServiceCreate(Sender: TObject);
 begin
 //  AddLog('AndroidServiceCreate - I');
+  ConnectionList := TConnectionRegisterList.Instance;
   FAddlog :=
     procedure(Value: String)
     begin
@@ -315,6 +318,11 @@ begin
   else
     AddLog('ConectarAoIniciar - F - False')
 end;
+
+//function TConversaNotifyServiceModule.ConnectionList: TConnectionRegisterList;
+//begin
+//  Result := TConnectionRegisterList.Instance;
+//end;
 
 procedure TConversaNotifyServiceModule.IniciarThreadConexao;
 begin
@@ -485,6 +493,14 @@ begin
   FThreadTCP := TThread.CreateAnonymousThread(LoopTCP);
   FThreadTCP.Start;
   AddLog('Conectar - F');
+
+  with ConnectionList.LockList do
+  try
+    AddLog('Qtd Alertas: '+ Count.ToString);
+  finally
+    ConnectionList.UnlockList;
+  end;
+  ConnectionList.AvisoConexao;
 end;
 
 procedure TConversaNotifyServiceModule.LoopTCP;

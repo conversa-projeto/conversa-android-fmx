@@ -20,7 +20,8 @@ uses
   Data.DB,
   Datasnap.DBClient,
   System.JSON,
-  REST.API;
+  REST.API,
+  REST.API.Thread;
 
 type
   // Class Inseptor
@@ -510,7 +511,7 @@ begin
   API := TRESTAPI.Create;
   try
     API.Authorization(TAuthBasic.New(FUser, FPassword));
-    API.Timeout(1000 * 60 * 30); // 30 minutos
+    API.Timeout(1{1000 * 60 * 30}); // 30 minutos
     API.Headers(TJSONObject.Create.AddPair('uid', FUserID));
 
     if Assigned(joParam) then
@@ -528,7 +529,14 @@ begin
     else
     begin
       API.Host(FURL + GetParams);
-      API.GET;
+      try
+        API.GET;
+      except
+        Exit;
+      end;
+
+      if API.Response.Status <> TResponseStatus.Sucess then
+        Exit;
 
       // Verificar se tem dados de resposta
       if not TemResposta(API) then

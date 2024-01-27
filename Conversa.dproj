@@ -353,7 +353,6 @@
         </DCCReference>
         <DCCReference Include="lib\rest\REST.API.pas"/>
         <DCCReference Include="lib\rest\REST.API.Thread.pas"/>
-        <DCCReference Include="lib\extends\Extend.DataSet.pas"/>
         <DCCReference Include="lib\extends\Extend.Generics.Collections.pas"/>
         <DCCReference Include="lib\helper\Helper.DataSet.pas"/>
         <DCCReference Include="lib\Tipos.pas"/>
@@ -368,6 +367,8 @@
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="services\notify\src\Conversa.Connection.List.pas"/>
+        <DCCReference Include="lib\Conversa.Gravatar.pas"/>
         <JavaReference Include="services\notify\Android\Release\ConversaNotify.jar">
             <ContainerId>ClassesdexFile</ContainerId>
             <Disabled/>
@@ -770,11 +771,6 @@
                 <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeMipsFile">
                     <Platform Name="Android64">
                         <RemoteName>libConversa.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(NDKBasePath)\prebuilt\android-arm\gdbserver\gdbserver" Configuration="Debug" Class="AndroidGDBServer">
-                    <Platform Name="Android">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

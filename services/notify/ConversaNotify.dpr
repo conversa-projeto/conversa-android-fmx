@@ -10,7 +10,8 @@ uses
   Chamada.Vibrator in '..\..\src\chamada\Chamada.Vibrator.pas',
   Chamada.Vibrator.Service.Android in '..\..\src\chamada\Chamada.Vibrator.Service.Android.pas',
   Chamada.Vibrator.Service in '..\..\src\chamada\Chamada.Vibrator.Service.pas',
-  Chamada.WakeLock in '..\..\src\chamada\Chamada.WakeLock.pas';
+  Chamada.WakeLock in '..\..\src\chamada\Chamada.WakeLock.pas',
+  Conversa.Connection.List in 'src\Conversa.Connection.List.pas';
 
 {$R *.res}
 

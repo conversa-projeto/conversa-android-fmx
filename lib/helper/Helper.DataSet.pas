@@ -27,7 +27,7 @@ uses
   System.UITypes,
   System.Classes,
   FMX.Forms,
-  System.RTTI;
+  System.RTTI, System.NetEncoding;
 
 type
   TDoubleArray = array of Double;
@@ -504,6 +504,8 @@ type
     function CountRegCDS(pFieldName, pCriterio: String): Integer;
 
     procedure IGLoadFromJSONArray(aJSON: TJSONArray);
+
+    function LoadFromJSONArray(jaValue: TJSONArray): TClientDataSet;
 
     procedure CreateFromJSONArray(aJSON: TJSONArray);
 
@@ -1397,6 +1399,81 @@ begin
 
   // Retorna o valor totalizado
   Result := dTotal;
+end;
+
+function StrJsonToDateTime(sData: String): Variant;
+var
+  fmt: TFormatSettings;
+  dData: TDateTime;
+begin
+  if sData.Contains('T') and TryISO8601ToDate(sData, dData) then
+    Exit(dData);
+
+  fmt := TFormatSettings.Invariant;
+  fmt.DateSeparator   := '-';
+  fmt.TimeSeparator   := ':';
+  fmt.ShortDateFormat := 'YYYY-MM-DD';
+  fmt.ShortTimeFormat := 'HH:nn';
+  fmt.LongTimeFormat  := 'HH:nn:ss';
+  if TryStrToDateTime(sData, dData, fmt) then
+    Exit(dData);
+
+  Result := Null;
+end;
+
+function TIGClientDataSet.LoadFromJSONArray(jaValue: TJSONArray): TClientDataSet;
+var
+  I,J: Integer;
+  oJSONROW: TJSONObject;
+  oJSONCEL: TJSONPair;
+  DField: TField;
+  sDados: String;
+  sValor: String;
+  ss: TStringStream;
+  Data: Variant;
+begin
+  sDados := EmptyStr;
+  for I := 0 to Pred(jaValue.Count) do
+  begin
+    oJSONROW := TJSONObject(jaValue.Items[I]);
+    sDados := sDados +'<ROW RowState="4"';
+    for J := 0 to Pred(oJSONROW.Count) do
+    begin
+      sValor := EmptyStr;
+      oJSONCEL := oJSONROW.Pairs[J];
+      DField := Self.FindField(oJSONCEL.JsonString.Value);
+      if DField = nil then
+        Continue
+      else
+      if not (DField is TTimeField) and ((DField is TDateTimeField) or (DField is TSQLTimeStampField)) then
+      begin
+        Data := StrJsonToDateTime(oJSONCEL.JsonValue.Value);
+        if Data = Null then
+          sValor := EmptyStr
+        else
+        if DField is TSQLTimeStampField then
+          sValor := FormatDateTime('yyyymmdd', TDateTime(Data)) +'T'+ FormatDateTime('hh:nn:sszzz', TDateTime(Data))
+        else
+          sValor := FormatDateTime('yyyy-mm-dd', TDateTime(Data)) +'T'+ FormatDateTime('hh:nn:ss.zzz', TDateTime(Data));
+      end
+      else
+        sValor := oJSONCEL.JsonValue.Value;
+      sDados := sDados +' '+ oJSONCEL.JsonString.Value +'="'+ TNetEncoding.HTML.Encode(sValor) +'"';
+    end;
+    sDados := sDados +'/>';
+  end;
+
+  ss := TStringStream.Create;
+  try
+    Self.SaveToStream(ss, dfXMLUTF8);
+    sDados := ss.DataString.Replace('<ROWDATA></ROWDATA>', '<ROWDATA>'+ sDados +'</ROWDATA>');
+    ss.Clear;
+    ss.WriteString(sDados);
+    ss.Position := 0;
+    Self.LoadFromStream(ss);
+  finally
+    FreeAndNil(ss);
+  end;
 end;
 
 function TIGClientDataSet.IGCloneTotalize(pCampoComValor, pFiltro: String): Double;

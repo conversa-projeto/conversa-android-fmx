@@ -30,15 +30,22 @@ uses
   FMX.ListView.Types,
   FMX.StdCtrls,
   FMX.Types,
+  Conversa.Connection.List,
   Tipos,
   Helper.dataSet,
-  Extend.DataSet,
   Androidapi.JNI.JavaTypes,
   Chamada.view, IdUDPBase, IdUDPClient, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, Androidapi.Helpers, Androidapi.JNI.App,
-  FMX.ListBox;
+  Contato.Lista.Item.frame,
+  REST.API,
+  REST.API.Thread,
+  FMX.ListBox, System.JSON;
 
 type
+  TListBoxItem = class(FMX.ListBox.TListBoxItem)
+  public
+    ContatoItem: TContatoItem;
+  end;
   TContatoListaView = class(TForm)
     lytClient: TLayout;
     cdsContatos: TClientDataSet;
@@ -53,8 +60,12 @@ type
     lstContatos: TListBox;
     procedure tmrCarregarTimer(Sender: TObject);
     procedure lvContatosClick(Sender: TObject);
+    procedure lstContatosItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
   private
     { Private declarations }
+    FHost: String;
+    FUserID: Integer;
+    procedure PrepararRes;
   public
     { Public declarations }
     IniciarChamada: TProc<TUsuario>;
@@ -69,9 +80,6 @@ var
 
 implementation
 
-uses
-  Contato.Lista.Item.frame;
-
 {$R *.fmx}
 
 { TContatoListaView }
@@ -81,14 +89,16 @@ begin
   Result := TContatoListaView.Create(AOwner);
   Result.lytClient.Parent := AOwner;
   Result.lytClient.Align := TAlignLayout.Client;
+  Result.PrepararRes;
+  Result.cdsContatos.CreateDataSet;
 
-  with Result, TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
-    cdsContatos
-      .RESTCreate('http://'+ JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143'))) +':90/usuario/contatos')
-      .RESTUserID(getInt(StringToJString('id'), 0))
-      .RESTRootElement('');
+  with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
+  begin
+    Result.FHost := 'http://'+ JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143'))) +':90/usuario/contatos';
+    Result.FUserID := getInt(StringToJString('id'), 0);
+  end;
 
-  Result.CarregarLista;
+//  Result.CarregarLista;
 
 //  Result.lvContatos.StyleLookup := 'ListView1Style1';
 //  Result.lvContatos.Repaint;
@@ -96,6 +106,11 @@ begin
 //  Result.lvContatos.ItemAppearanceObjects.FooterObjects.Text.TextColor := TAlphaColors.Red;
 
 //  Result.tmrCarregar.Enabled := True;
+end;
+
+procedure TContatoListaView.lstContatosItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+begin
+  Iniciar(Item.ContatoItem.ID);
 end;
 
 procedure TContatoListaView.lvContatosClick(Sender: TObject);
@@ -117,6 +132,22 @@ begin
   CarregarLista
 end;
 
+procedure TContatoListaView.PrepararRes;
+begin
+  TConnectionRegisterList.Instance.Add(
+    procedure
+    begin
+      TThread.Synchronize(
+        nil,
+        procedure
+        begin
+          CarregarLista;
+        end
+      );
+    end
+  );
+end;
+
 procedure TContatoListaView.tmrCarregarTimer(Sender: TObject);
 begin
   CarregarLista;
@@ -127,26 +158,46 @@ var
   Item: TListBoxItem;
 begin
   tmrCarregar.Enabled := False;
-  cdsContatos
-    .RESTClose
-    .RESTOpen;
 
-  cdsContatos.First;
-  while not cdsContatos.Eof do
-  try
-    Item := TListBoxItem.Create(nil);
-    Item.Text := '';
-    Item.Height := 60;
-    Item.Selectable := False;
-    Item.Tag := cdsContatos.IGGetInt('id');
-    TContatoItem.New(Item, cdsContatos.IGGetInt('id'))
-      .Nome(cdsContatos.IGGetStr('nome'))
-      .Informacao1(cdsContatos.IGGetStr('email'))
-      .IniciarChamada(Iniciar);
-    lstContatos.AddObject(Item);
-  finally
-    cdsContatos.Next;
-  end;
+  lstContatos.Clear;
+  cdsContatos.EmptyDataSet;
+  TRESTAPIThread.Create
+    .GET(
+      TRESTAPI.Create
+        .Headers(TJSONObject.Create.AddPair('uid', FUserID))
+        .Host(FHost)
+    )
+    .Start(
+      procedure(Response: TResponseThread)
+      begin
+        if Response.Status = TResponseStatus.Sucess then
+        begin
+          cdsContatos.LoadFromJSONArray(Response.ToJSON.AsType<TJSONArray>);
+          cdsContatos.First;
+          lstContatos.BeginUpdate;
+          try
+            while not cdsContatos.Eof do
+            try
+              Item := TListBoxItem.Create(nil);
+              Item.Text := '';
+              Item.Height := 60;
+              Item.Selectable := False;
+              Item.Tag := cdsContatos.IGGetInt('id');
+              Item.ContatoItem :=
+                TContatoItem.New(Item, cdsContatos.IGGetInt('id'))
+                  .Nome(cdsContatos.IGGetStr('nome'))
+                  .Informacao1(cdsContatos.IGGetStr('email'))
+                  .IniciarChamada(Iniciar);
+              lstContatos.AddObject(Item);
+            finally
+              cdsContatos.Next;
+            end;
+          finally
+            lstContatos.EndUpdate;
+          end;
+        end;
+      end
+    );
 end;
 
 procedure TContatoListaView.Iniciar(ID: Integer);

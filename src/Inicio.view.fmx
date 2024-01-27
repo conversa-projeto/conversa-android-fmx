@@ -30,8 +30,8 @@ object InicioView: TInicioView
     Size.Height = 209.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
-    Viewport.Width = 332.000000000000000000
-    Viewport.Height = 201.000000000000000000
+    Viewport.Width = 340.000000000000000000
+    Viewport.Height = 209.000000000000000000
   end
   object Button1: TButton
     Align = Top
@@ -42,6 +42,12 @@ object InicioView: TInicioView
     TabOrder = 4
     Text = 'Button1'
     OnClick = Button1Click
+  end
+  object tmrTeste: TTimer
+    Enabled = False
+    OnTimer = tmrTesteTimer
+    Left = 176
+    Top = 385
   end
   object S2: TIdTCPClient
     BoundIP = 'S'

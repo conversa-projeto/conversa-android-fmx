@@ -18,13 +18,14 @@ uses
   Conversa.Configuracoes.View in 'src\Conversa.Configuracoes.View.pas' {ConfiguracoesView},
   REST.API in 'lib\rest\REST.API.pas',
   REST.API.Thread in 'lib\rest\REST.API.Thread.pas',
-  Extend.DataSet in 'lib\extends\Extend.DataSet.pas',
   Extend.Generics.Collections in 'lib\extends\Extend.Generics.Collections.pas',
   Helper.DataSet in 'lib\helper\Helper.DataSet.pas',
   Tipos in 'lib\Tipos.pas',
   Helper.JSON in 'lib\helper\Helper.JSON.pas',
   Conversa.Notify.Inicio in 'services\notify\src\Conversa.Notify.Inicio.pas' {ConversaNotifyServiceModule: TAndroidService},
-  Contato.Lista.Item.frame in 'src\contatos\Contato.Lista.Item.frame.pas' {ContatoItem: TFrame};
+  Contato.Lista.Item.frame in 'src\contatos\Contato.Lista.Item.frame.pas' {ContatoItem: TFrame},
+  Conversa.Connection.List in 'services\notify\src\Conversa.Connection.List.pas',
+  Conversa.Gravatar in 'lib\Conversa.Gravatar.pas';
 
 {$R *.res}
 

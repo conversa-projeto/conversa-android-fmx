@@ -49,10 +49,12 @@ type
     S: TIdUDPClient;
     Memo1: TMemo;
     Button1: TButton;
+    tmrTeste: TTimer;
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure tmrTesteTimer(Sender: TObject);
   private
     { Private declarations }
     AddLog: TProc<String>;
@@ -79,6 +81,8 @@ type
     procedure FinalizarChamada(bEnviarComando: Boolean = True);
     procedure RecusarChamada(bEnviarComando: Boolean = True);
     procedure TrazerPraFrente;
+
+    procedure ConectarServico;
   end;
 
 var
@@ -87,6 +91,7 @@ var
 implementation
 
 uses
+  Conversa.Connection.List,
   Helper.JSON;
 
 {$R *.fmx}
@@ -95,11 +100,9 @@ procedure TInicioView.FormCreate(Sender: TObject);
 var
     vFlags: integer;
 begin
+  Button1.Visible := False;
+  tmrTeste.Enabled := True;
   Memo1.Visible := False;
-  ServiceConnection := TLocalServiceConnection.Create;
-  ServiceConnection.OnConnected := ServiceConnected;
-  ServiceConnection.OnDisconnected := ServiceDisconnected;
-  ServiceConnection.BindService(TConversaNotifyServiceModule.ServiceClassName);
 
   vFlags :=
     TJWindowManager_LayoutParams.JavaClass.FLAG_TURN_SCREEN_ON or
@@ -213,6 +216,15 @@ begin
   Service.OnCancelarChamada := OnFinalizarChamada;
   Service.OnDestinatarioOcupado := OnDestinatarioOcupado;
   Service.TrazerPraFrente := TrazerPraFrente;
+  Service.ConnectionList.Add(TConnectionRegisterList.Instance.AvisoConexao);
+
+  with Service.ConnectionList.LockList do
+  try
+    Service.AddLog('Adicionado:'+ Count.ToString);
+  finally
+    Service.ConnectionList.UnlockList;
+  end;
+
   if Service.FRecebendoChamada then
   begin
     OnReceberChamada;
@@ -251,6 +263,12 @@ begin
       end;
     end
   );
+end;
+
+procedure TInicioView.tmrTesteTimer(Sender: TObject);
+begin
+  tmrTeste.Enabled := False;
+  ConectarServico;
 end;
 
 procedure TInicioView.OnReceberChamada;
@@ -376,6 +394,8 @@ end;
 
 procedure TInicioView.Button1Click(Sender: TObject);
 begin
+  TConnectionRegisterList.Instance.AvisoConexao;
+  Exit;
 //  FPermissionReadExternalStorage := JStringToString(TJManifest_permission.JavaClass.READ_EXTERNAL_STORAGE);
 //  FPermissionWriteExternalStorage := JStringToString(TJManifest_permission.JavaClass.WRITE_EXTERNAL_STORAGE);
   PermissionsService.RequestPermissions(
@@ -459,6 +479,14 @@ end;
 procedure TInicioView.VivaVoz(Value: Boolean);
 begin
   Service.VivaVoz(Value);
+end;
+
+procedure TInicioView.ConectarServico;
+begin
+  ServiceConnection := TLocalServiceConnection.Create;
+  ServiceConnection.OnConnected := ServiceConnected;
+  ServiceConnection.OnDisconnected := ServiceDisconnected;
+  ServiceConnection.BindService(TConversaNotifyServiceModule.ServiceClassName);
 end;
 
 end.

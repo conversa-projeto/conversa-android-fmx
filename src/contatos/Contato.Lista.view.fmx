@@ -25,16 +25,17 @@ object ContatoListaView: TContatoListaView
       DefaultItemStyles.ItemStyle = ''
       DefaultItemStyles.GroupHeaderStyle = ''
       DefaultItemStyles.GroupFooterStyle = ''
+      OnItemClick = lstContatosItemClick
       Viewport.Width = 384.000000000000000000
       Viewport.Height = 480.000000000000000000
     end
   end
   object tmrCarregar: TTimer
     Enabled = False
-    Interval = 2000
+    Interval = 150
     OnTimer = tmrCarregarTimer
-    Left = 232
-    Top = 312
+    Left = 160
+    Top = 304
   end
   object cdsContatos: TClientDataSet
     Aggregates = <>

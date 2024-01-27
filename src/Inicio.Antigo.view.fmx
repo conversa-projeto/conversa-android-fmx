@@ -4,6 +4,8 @@ object InicioAView: TInicioAView
   Caption = 'Inicio - Antigo'
   ClientHeight = 480
   ClientWidth = 400
+  Fill.Color = xFF232323
+  Fill.Kind = Solid
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
@@ -11,7 +13,6 @@ object InicioAView: TInicioAView
   DesignerMasterStyle = 0
   object Rectangle2: TRectangle
     Align = Contents
-    Enabled = True
     Fill.Color = claSkyblue
     Size.Width = 400.000000000000000000
     Size.Height = 480.000000000000000000
@@ -60,7 +61,7 @@ object InicioAView: TInicioAView
             TextSettings.Font.Size = 20.000000000000000000
             TextSettings.Font.StyleExt = {00070000000000000004000000}
             TextSettings.FontColor = claWhite
-            Text = 'Conversa-'
+            Text = 'Conversa'
             TabOrder = 0
           end
         end

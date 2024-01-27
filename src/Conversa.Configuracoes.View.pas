@@ -30,9 +30,9 @@ type
     Layout1: TLayout;
     TabControl1: TTabControl;
     StyleBook1: TStyleBook;
-    tshServidor: TTabItem;
-    tshUsuario: TTabItem;
-    tshSenha: TTabItem;
+    tsh1_Servidor: TTabItem;
+    tsh2_Usuario: TTabItem;
+    tsh3_Senha: TTabItem;
     lytServidor: TLayout;
     rctServidor: TRectangle;
     edtServidor: TEdit;
