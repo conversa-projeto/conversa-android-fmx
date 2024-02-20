@@ -132,6 +132,7 @@
         <AndroidServiceType>Local</AndroidServiceType>
         <VerInfo_Build>1</VerInfo_Build>
         <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+        <AUP_RECEIVE_BOOT_COMPLETED>true</AUP_RECEIVE_BOOT_COMPLETED>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;fmx;DbxCommonDriver;bindengine;IndyIPCommon;FireDACCommonDriver;IndyProtocols;IndyIPClient;dbxcds;bindcomp;FmxTeeUI;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;rtl;FireDACSqliteDriver;DbxClientDriver;RESTComponents;DBXSqliteDriver;IndyIPServer;fmxFireDAC;dbexpress;dsnapxml;soapmidas;inet;FireDAC;xmlrtl;tethering;dbrtl;dsnap;CloudService;CustomIPTransport;FMXTee;soaprtl;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -141,6 +142,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Build>1</VerInfo_Build>
         <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+        <AUP_RECEIVE_BOOT_COMPLETED>true</AUP_RECEIVE_BOOT_COMPLETED>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_iOSDevice64)'!=''">
         <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
@@ -233,7 +235,7 @@
         <DCCReference Include="..\..\src\chamada\Chamada.Vibrator.Service.Android.pas"/>
         <DCCReference Include="..\..\src\chamada\Chamada.Vibrator.Service.pas"/>
         <DCCReference Include="..\..\src\chamada\Chamada.WakeLock.pas"/>
-        <DCCReference Include="src\Conversa.Connection.List.pas"/>
+        <DCCReference Include="..\..\lib\Conversa.App.Events.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

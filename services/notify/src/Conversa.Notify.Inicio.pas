@@ -30,7 +30,7 @@ uses
   Androidapi.JNI.Os,
   Androidapi.JNI.Support,
   Androidapi.Log,
-  Conversa.Connection.List,
+  Conversa.App.Events,
   Tipos,
   Chamada.Audio,
   Chamada.Vibrator.Service,
@@ -99,9 +99,10 @@ type
     OnDestinatarioOcupado: TProc;
     FRecebendoChamada: Boolean;
     TrazerPraFrente: TProc;
-    ConnectionList: TConnectionRegisterList;
+    AppEvents: TConversaAppEvents;
     function ConectarAoIniciar: Boolean;
     procedure ManterSegundoPlano;
+    procedure Desconectar;
     procedure Conectar;
     procedure StopLocationTracking;
     procedure IniciarChamada(ID: Integer);
@@ -217,7 +218,7 @@ end;
 procedure TConversaNotifyServiceModule.AndroidServiceCreate(Sender: TObject);
 begin
 //  AddLog('AndroidServiceCreate - I');
-  ConnectionList := TConnectionRegisterList.Instance;
+  AppEvents := TConversaAppEvents.Instance;
   FAddlog :=
     procedure(Value: String)
     begin
@@ -319,7 +320,7 @@ begin
     AddLog('ConectarAoIniciar - F - False')
 end;
 
-//function TConversaNotifyServiceModule.ConnectionList: TConnectionRegisterList;
+//function TConversaNotifyServiceModule.AppEvents: TConnectionRegisterList;
 //begin
 //  Result := TConnectionRegisterList.Instance;
 //end;
@@ -493,14 +494,7 @@ begin
   FThreadTCP := TThread.CreateAnonymousThread(LoopTCP);
   FThreadTCP.Start;
   AddLog('Conectar - F');
-
-  with ConnectionList.LockList do
-  try
-    AddLog('Qtd Alertas: '+ Count.ToString);
-  finally
-    ConnectionList.UnlockList;
-  end;
-  ConnectionList.AvisoConexao;
+  AppEvents.Run(TConversaAppEventType.Conectado);
 end;
 
 procedure TConversaNotifyServiceModule.LoopTCP;
@@ -790,6 +784,11 @@ begin
   if Origem = TOrigemComando.Local then
     TCPSendCommand(TMethod.CancelarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
   EncerrarChamada;
+end;
+
+procedure TConversaNotifyServiceModule.Desconectar;
+begin
+  IdTCPClient1.Disconnect;
 end;
 
 procedure TConversaNotifyServiceModule.DestinatarioOcupado;

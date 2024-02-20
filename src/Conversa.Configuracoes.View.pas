@@ -65,6 +65,8 @@ type
     procedure btnAnteriorClick(Sender: TObject);
     procedure TabControl1Change(Sender: TObject);
     procedure tmrCarregarTimer(Sender: TObject);
+    procedure edtUsuarioKeyDown(Sender: TObject; var Key: Word;
+      var KeyChar: Char; Shift: TShiftState);
   private type
     TMove = (Inicio, Proximo, Anterior);
   private
@@ -112,6 +114,13 @@ end;
 procedure TConfiguracoesView.btnProximoClick(Sender: TObject);
 begin
   Mover(TMove.Proximo);
+end;
+
+procedure TConfiguracoesView.edtUsuarioKeyDown(Sender: TObject; var Key: Word;
+  var KeyChar: Char; Shift: TShiftState);
+begin
+  if Key in [vkReturn, vkNext] then
+    Mover(TMove.Proximo);
 end;
 
 procedure TConfiguracoesView.Mover(Direcao: TMove);
@@ -221,7 +230,8 @@ begin
                         lytClient.Visible := False;
                         SalvarConfiguracao;
                         FreeAndNil(FLogin);
-                        FOnConfigurado;
+                        if Assigned(FOnConfigurado) then
+                          FOnConfigurado;
                       end
                     );
                   end
@@ -233,7 +243,8 @@ begin
               nil,
               procedure
               begin
-                FOnAddLog('Falha no Login'+ sLineBreak + E.Message);
+                if Assigned(FOnAddLog) then
+                  FOnAddLog('Falha no Login'+ sLineBreak + E.Message);
                 raise Exception.Create('Falha no login!');
               end
             );

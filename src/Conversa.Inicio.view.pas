@@ -1,4 +1,4 @@
-﻿unit Inicio.Antigo.view;
+﻿unit Conversa.Inicio.view;
 
 interface
 
@@ -44,10 +44,11 @@ uses
   Chamada.view,
   Contato.Lista.view,
   Conversa.Notify.Inicio,
+  Conversa.Configuracoes.View,
   Tipos;
 
 type
-  TInicioAView = class(TForm)
+  TInicioView = class(TForm)
     lytClient: TLayout;
     lytTitleBox: TLayout;
     Rectangle1: TRectangle;
@@ -59,6 +60,7 @@ type
     Rectangle2: TRectangle;
     procedure FormCreate(Sender: TObject);
     procedure btnAcaoClick(Sender: TObject);
+    procedure btnMenuClick(Sender: TObject);
   private
     { Private declarations }
     FLista: TContatoListaView;
@@ -66,37 +68,44 @@ type
     { Public declarations }
     ClientView: TLayout;
     IniciarChamada: TProc<TUsuario>;
-    class function New(AOwner: TFmxObject): TInicioAView;
-    function OnIniciaChamada(Value: TProc<TUsuario>): TInicioAView;
+    class function New(AOwner: TFmxObject): TInicioView;
+    function OnIniciaChamada(Value: TProc<TUsuario>): TInicioView;
   end;
 
 var
-  InicioAView: TInicioAView;
+  InicioView: TInicioView;
 
 implementation
 
 {$R *.fmx}
 
-class function TInicioAView.New(AOwner: TFmxObject): TInicioAView;
+uses Conversa.Desktop.view;
+
+class function TInicioView.New(AOwner: TFmxObject): TInicioView;
 begin
-  Result := TInicioAView.Create(AOwner);
+  Result := TInicioView.Create(AOwner);
   Result.lytClient.Parent := AOwner;
   Result.lytClient.Align := TAlignLayout.Client;
 end;
 
-function TInicioAView.OnIniciaChamada(Value: TProc<TUsuario>): TInicioAView;
+function TInicioView.OnIniciaChamada(Value: TProc<TUsuario>): TInicioView;
 begin
   Result := Self;
   IniciarChamada := Value;
   FLista.IniciarChamada := Value;
 end;
 
-procedure TInicioAView.btnAcaoClick(Sender: TObject);
+procedure TInicioView.btnAcaoClick(Sender: TObject);
 begin
   FLista.PrepararDataSet;
 end;
 
-procedure TInicioAView.FormCreate(Sender: TObject);
+procedure TInicioView.btnMenuClick(Sender: TObject);
+begin
+  DesktopView.ExibirTelaConfiguracao;
+end;
+
+procedure TInicioView.FormCreate(Sender: TObject);
 begin
   FLista := TContatoListaView.New(lytClient);
 //  btnAcao.Visible := False;

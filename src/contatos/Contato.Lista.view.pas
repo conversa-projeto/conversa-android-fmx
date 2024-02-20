@@ -30,7 +30,7 @@ uses
   FMX.ListView.Types,
   FMX.StdCtrls,
   FMX.Types,
-  Conversa.Connection.List,
+  Conversa.App.Events,
   Tipos,
   Helper.dataSet,
   Androidapi.JNI.JavaTypes,
@@ -66,6 +66,7 @@ type
     FHost: String;
     FUserID: Integer;
     procedure PrepararRes;
+    procedure ObterHost;
   public
     { Public declarations }
     IniciarChamada: TProc<TUsuario>;
@@ -91,12 +92,9 @@ begin
   Result.lytClient.Align := TAlignLayout.Client;
   Result.PrepararRes;
   Result.cdsContatos.CreateDataSet;
+  Result.ObterHost;
 
-  with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
-  begin
-    Result.FHost := 'http://'+ JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143'))) +':90/usuario/contatos';
-    Result.FUserID := getInt(StringToJString('id'), 0);
-  end;
+
 
 //  Result.CarregarLista;
 
@@ -105,7 +103,16 @@ begin
 //  Result.lvContatos.ItemAppearanceObjects.HeaderObjects.Text.TextColor := TAlphaColors.Red;
 //  Result.lvContatos.ItemAppearanceObjects.FooterObjects.Text.TextColor := TAlphaColors.Red;
 
-//  Result.tmrCarregar.Enabled := True;
+  Result.tmrCarregar.Enabled := True;
+end;
+
+procedure TContatoListaView.ObterHost;
+begin
+  with TAndroidHelper.Context.getSharedPreferences(StringToJString('conversa_pref'), TJActivity.JavaClass.MODE_PRIVATE) do
+  begin
+    FHost := 'http://'+ JStringToString(getString(StringToJString('host'), StringToJString('54.232.35.143'))) +':90/usuario/contatos';
+    FUserID := getInt(StringToJString('id'), 0);
+  end;
 end;
 
 procedure TContatoListaView.lstContatosItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
@@ -134,13 +141,15 @@ end;
 
 procedure TContatoListaView.PrepararRes;
 begin
-  TConnectionRegisterList.Instance.Add(
+  TConversaAppEvents.Instance.Add(
+    TConversaAppEventType.Conectado,
     procedure
     begin
       TThread.Synchronize(
         nil,
         procedure
         begin
+          ObterHost;
           CarregarLista;
         end
       );

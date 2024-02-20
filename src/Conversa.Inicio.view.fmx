@@ -1,4 +1,4 @@
-object InicioAView: TInicioAView
+object InicioView: TInicioView
   Left = 0
   Top = 0
   Caption = 'Inicio - Antigo'
@@ -10,7 +10,7 @@ object InicioAView: TInicioAView
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
-  DesignerMasterStyle = 0
+  DesignerMasterStyle = 3
   object Rectangle2: TRectangle
     Align = Contents
     Fill.Color = claSkyblue
@@ -68,8 +68,9 @@ object InicioAView: TInicioAView
         object btnAcao: TButton
           Align = Right
           Position.X = 352.000000000000000000
+          Position.Y = 1.000000000000000000
           Size.Width = 48.000000000000000000
-          Size.Height = 50.000000000000000000
+          Size.Height = 48.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'searchtoolbutton'
           TabOrder = 0
@@ -78,12 +79,14 @@ object InicioAView: TInicioAView
         end
         object btnMenu: TButton
           Align = Left
+          Position.Y = 1.000000000000000000
           Size.Width = 48.000000000000000000
-          Size.Height = 50.000000000000000000
+          Size.Height = 48.000000000000000000
           Size.PlatformDefault = False
-          StyleLookup = 'detailstoolbutton'
+          StyleLookup = 'drawertoolbutton'
           TabOrder = 1
           Text = 'btnMenu'
+          OnClick = btnMenuClick
         end
       end
     end

@@ -1,0 +1,49 @@
+object DesktopView: TDesktopView
+  Left = 0
+  Top = 0
+  Border.Styling = False
+  Caption = 'Inicio'
+  ClientHeight = 480
+  ClientWidth = 340
+  Fill.Color = xFF232323
+  Fill.Kind = Solid
+  Quality = HighQuality
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  OnVirtualKeyboardShown = FormVirtualKeyboardShown
+  OnVirtualKeyboardHidden = FormVirtualKeyboardHidden
+  DesignerMasterStyle = 3
+  object tmrTeste: TTimer
+    Enabled = False
+    OnTimer = tmrTesteTimer
+    Left = 176
+    Top = 385
+  end
+  object lytClient: TLayout
+    Align = Client
+    Size.Width = 340.000000000000000000
+    Size.Height = 480.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+  end
+  object TCP: TIdTCPClient
+    BoundIP = 'S'
+    ConnectTimeout = 0
+    Host = '10.0.5.65'
+    Port = 490
+    ReadTimeout = -1
+    Left = 16
+    Top = 5
+  end
+  object UDP: TIdUDPClient
+    BoundIP = 'S'
+    Host = '10.0.5.65'
+    Port = 49000
+    Left = 16
+    Top = 61
+  end
+end

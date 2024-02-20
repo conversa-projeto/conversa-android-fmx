@@ -1,4 +1,4 @@
-﻿unit Inicio.view;
+﻿unit Conversa.Desktop.view;
 
 interface
 
@@ -39,26 +39,29 @@ uses
   Contato.Lista.view,
   Conversa.Configuracoes.View,
   Conversa.Notify.Inicio,
-  Inicio.Antigo.view,
+  Conversa.Inicio.view,
   Tipos;
 
 type
-  TInicioView = class(TForm)
+  TDesktopView = class(TForm)
     lytClient: TLayout;
-    S2: TIdTCPClient;
-    S: TIdUDPClient;
-    Memo1: TMemo;
-    Button1: TButton;
     tmrTeste: TTimer;
+    TCP: TIdTCPClient;
+    UDP: TIdUDPClient;
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure tmrTesteTimer(Sender: TObject);
+    procedure FormVirtualKeyboardHidden(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
+    procedure FormVirtualKeyboardShown(Sender: TObject;
+      KeyboardVisible: Boolean; const Bounds: TRect);
   private
     { Private declarations }
+    FKBBounds: TRectF;
+    FNeedOffset: Boolean;
+
     AddLog: TProc<String>;
-    FInicio: TInicioAView;
+    FInicio: TInicioView;
     ServiceConnection: TLocalServiceConnection;
     Service: TConversaNotifyServiceModule;
     FChamadaView: TChamadaView;
@@ -81,28 +84,28 @@ type
     procedure FinalizarChamada(bEnviarComando: Boolean = True);
     procedure RecusarChamada(bEnviarComando: Boolean = True);
     procedure TrazerPraFrente;
-
     procedure ConectarServico;
+    procedure ExibirTelaConfiguracao;
   end;
 
 var
-  InicioView: TInicioView;
+  DesktopView: TDesktopView;
 
 implementation
 
 uses
-  Conversa.Connection.List,
+  Conversa.App.Events,
   Helper.JSON;
 
 {$R *.fmx}
 
-procedure TInicioView.FormCreate(Sender: TObject);
+procedure TDesktopView.FormCreate(Sender: TObject);
 var
     vFlags: integer;
 begin
-  Button1.Visible := False;
+  VKAutoShowMode := TVKAutoShowMode.Always;
+
   tmrTeste.Enabled := True;
-  Memo1.Visible := False;
 
   vFlags :=
     TJWindowManager_LayoutParams.JavaClass.FLAG_TURN_SCREEN_ON or
@@ -126,14 +129,14 @@ begin
   end;
 end;
 
-procedure TInicioView.FormDestroy(Sender: TObject);
+procedure TDesktopView.FormDestroy(Sender: TObject);
 begin
   Service.FShowLog := nil;
   ServiceConnection.UnbindService;
   FreeAndNil(ServiceConnection);
 end;
 
-procedure TInicioView.FormShow(Sender: TObject);
+procedure TDesktopView.FormShow(Sender: TObject);
 begin
   TPermissionsService.DefaultService.RequestPermissions(
     [
@@ -172,15 +175,26 @@ begin
 //      end);
     end);
   if not TConfiguracoesView.EstaConfigurado then
-    TConfiguracoesView.New(Self, ExibirTelaInicial, AddLog)
+    ExibirTelaConfiguracao
   else
     ExibirTelaInicial;
 end;
 
-procedure TInicioView.ExibirTelaInicial;
+procedure TDesktopView.ExibirTelaConfiguracao;
 begin
-  Button1.Visible := False;
+  TConfiguracoesView.New(
+    lytClient,
+    procedure
+    begin
+      ExibirTelaInicial;
+      Service.Desconectar;
+    end,
+    AddLog
+  );
+end;
 
+procedure TDesktopView.ExibirTelaInicial;
+begin
 //  Self.Left := -5;
 //  Self.Width := Self.Width + 10;
 //
@@ -193,12 +207,15 @@ begin
 //  Rectangle1.Position.X := - 50;
 
 //  Exit;
-  FInicio := TInicioAView.New(lytClient);
+  if Assigned(FInicio) then
+    Exit;
+
+  FInicio := TInicioView.New(lytClient);
   FInicio.ClientView := lytClient;
   FInicio.OnIniciaChamada(Self.IniciarChamada);
 end;
 
-procedure TInicioView.ServiceConnected(const LocalService: TAndroidBaseService);
+procedure TDesktopView.ServiceConnected(const LocalService: TAndroidBaseService);
 begin
   // Called when the connection between the native activity and the service has been established. It is used to obtain the
   // binder object that allows the direct interaction between the native activity and the service.
@@ -216,14 +233,7 @@ begin
   Service.OnCancelarChamada := OnFinalizarChamada;
   Service.OnDestinatarioOcupado := OnDestinatarioOcupado;
   Service.TrazerPraFrente := TrazerPraFrente;
-  Service.ConnectionList.Add(TConnectionRegisterList.Instance.AvisoConexao);
-
-  with Service.ConnectionList.LockList do
-  try
-    Service.AddLog('Adicionado:'+ Count.ToString);
-  finally
-    Service.ConnectionList.UnlockList;
-  end;
+  Service.AppEvents.Add(TConversaAppEvents.Instance);
 
   if Service.FRecebendoChamada then
   begin
@@ -232,7 +242,7 @@ begin
   end;
 end;
 
-procedure TInicioView.ServiceDisconnected;
+procedure TDesktopView.ServiceDisconnected;
 begin
   // Called when the connection between the native activity and the service has been unexpectedly lost (e.g. when the user
   // manually stops the service using the 'Settings' system application).
@@ -240,7 +250,7 @@ begin
   Service := nil;
 end;
 
-procedure TInicioView.TrazerPraFrente;
+procedure TDesktopView.TrazerPraFrente;
 var
   I: JIntent;
 begin
@@ -249,7 +259,7 @@ begin
   TAndroidHelper.Activity.startActivity(I);
 end;
 
-procedure TInicioView.ShowLog(sMsg: String);
+procedure TDesktopView.ShowLog(sMsg: String);
 begin
   TThread.Synchronize(
     nil,
@@ -265,13 +275,13 @@ begin
   );
 end;
 
-procedure TInicioView.tmrTesteTimer(Sender: TObject);
+procedure TDesktopView.tmrTesteTimer(Sender: TObject);
 begin
   tmrTeste.Enabled := False;
   ConectarServico;
 end;
 
-procedure TInicioView.OnReceberChamada;
+procedure TDesktopView.OnReceberChamada;
 begin
   AddLog('ThreadID View: '+ TThread.Current.ThreadID.ToString);
   TThread.Synchronize(
@@ -297,12 +307,12 @@ begin
   );
 end;
 
-procedure TInicioView.OnRecusarChamada;
+procedure TDesktopView.OnRecusarChamada;
 begin
   OnFinalizarChamada;
 end;
 
-procedure TInicioView.OnAtenderChamada;
+procedure TDesktopView.OnAtenderChamada;
 begin
   ConfigurarTelaLigacao;
   FChamadaView
@@ -315,12 +325,12 @@ begin
     );
 end;
 
-procedure TInicioView.OnCancelarChamada;
+procedure TDesktopView.OnCancelarChamada;
 begin
   OnFinalizarChamada;
 end;
 
-procedure TInicioView.OnDestinatarioOcupado;
+procedure TDesktopView.OnDestinatarioOcupado;
 begin
   FChamadaView.lytClient.Visible := False;
   FChamadaView.Rectangle1.Visible := False;
@@ -333,7 +343,7 @@ begin
   );
 end;
 
-procedure TInicioView.OnFinalizarChamada;
+procedure TDesktopView.OnFinalizarChamada;
 begin
   if not Assigned(FChamadaView) then
     Exit;
@@ -342,7 +352,7 @@ begin
   FChamadaView.Rectangle1.Visible := False;
 end;
 
-procedure TInicioView.IniciarChamada(User: TUsuario);
+procedure TDesktopView.IniciarChamada(User: TUsuario);
 begin
   ConfigurarTelaLigacao;
   AddLog('S.FR.I.'+ Service.FRemetente.Identificador);
@@ -372,7 +382,7 @@ begin
   ).Start;
 end;
 
-procedure TInicioView.AtenderChamada(bEnviaComando: Boolean);
+procedure TDesktopView.AtenderChamada(bEnviaComando: Boolean);
 begin
   ConfigurarTelaLigacao;
 
@@ -392,33 +402,7 @@ begin
     );
 end;
 
-procedure TInicioView.Button1Click(Sender: TObject);
-begin
-  TConnectionRegisterList.Instance.AvisoConexao;
-  Exit;
-//  FPermissionReadExternalStorage := JStringToString(TJManifest_permission.JavaClass.READ_EXTERNAL_STORAGE);
-//  FPermissionWriteExternalStorage := JStringToString(TJManifest_permission.JavaClass.WRITE_EXTERNAL_STORAGE);
-  PermissionsService.RequestPermissions(
-    [
-      JStringToString(TJManifest_permission.JavaClass.READ_EXTERNAL_STORAGE),
-      JStringToString(TJManifest_permission.JavaClass.WRITE_EXTERNAL_STORAGE)
-    ],
-    procedure(const APermissions: TClassicStringDynArray; const AGrantResults: TClassicPermissionStatusDynArray)
-    begin
-      if (Length(AGrantResults) = 2) and (AGrantResults[0] = TPermissionStatus.Granted)and (AGrantResults[1] = TPermissionStatus.Granted) then
-      begin
-//        ShowMessage('Acesso concedido!');
-        Memo1.Lines.Insert(0, TPath.Combine(TPath.GetSharedDocumentsPath, 'conversalog.txt'));
-        Memo1.Visible := True;
-        AddLog('Teste');
-      end
-      else
-        ShowMessage('Acesso negado!')
-    end
-  );
-end;
-
-procedure TInicioView.ConfigurarTelaLigacao;
+procedure TDesktopView.ConfigurarTelaLigacao;
 var
   joIdentificador: TJSONObject;
 begin
@@ -448,7 +432,7 @@ begin
   );
 end;
 
-procedure TInicioView.RecusarChamada(bEnviarComando: Boolean);
+procedure TDesktopView.RecusarChamada(bEnviarComando: Boolean);
 begin
   FChamadaView.lytClient.Visible := False;
   FChamadaView.Rectangle1.Visible := False;
@@ -462,7 +446,7 @@ begin
     FreeAndNil(FChamadaView);
 end;
 
-procedure TInicioView.FinalizarChamada(bEnviarComando: Boolean);
+procedure TDesktopView.FinalizarChamada(bEnviarComando: Boolean);
 begin
   FChamadaView.lytClient.Visible := False;
   FChamadaView.Rectangle1.Visible := False;
@@ -476,17 +460,33 @@ begin
     FreeAndNil(FChamadaView);
 end;
 
-procedure TInicioView.VivaVoz(Value: Boolean);
+procedure TDesktopView.VivaVoz(Value: Boolean);
 begin
   Service.VivaVoz(Value);
 end;
 
-procedure TInicioView.ConectarServico;
+procedure TDesktopView.ConectarServico;
 begin
   ServiceConnection := TLocalServiceConnection.Create;
   ServiceConnection.OnConnected := ServiceConnected;
   ServiceConnection.OnDisconnected := ServiceDisconnected;
   ServiceConnection.BindService(TConversaNotifyServiceModule.ServiceClassName);
+end;
+
+procedure TDesktopView.FormVirtualKeyboardHidden(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
+begin
+  FKBBounds.Create(0, 0, 0, 0);
+  FNeedOffset := False;
+  lytClient.Align := TAlignLayout.Client;
+end;
+
+procedure TDesktopView.FormVirtualKeyboardShown(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
+begin
+  FKBBounds := TRectF.Create(Bounds);
+  FKBBounds.TopLeft := ScreenToClient(FKBBounds.TopLeft);
+  FKBBounds.BottomRight := ScreenToClient(FKBBounds.BottomRight);
+  lytClient.Align := TAlignLayout.Top;
+  lytClient.Height := Self.ClientHeight - FKBBounds.Height;
 end;
 
 end.
