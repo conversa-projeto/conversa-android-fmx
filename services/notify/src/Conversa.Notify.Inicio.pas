@@ -88,7 +88,7 @@ type
   public
     Host: String;
     ID: Integer;
-    FShowLog: TProc<String>;
+    FShowLog: TProc<String, Boolean>;
     FLocalPonta: TPonta;
     FRemetente: TPonta;
     OnAtenderChamada: TProc;
@@ -149,7 +149,7 @@ end;
 
 procedure TConversaNotifyServiceModule.AddLog(sMsg: String);
 begin
-  AddLog(sMsg, True);
+  AddLog(sMsg, False);
 end;
 
 procedure TConversaNotifyServiceModule.AddLog(sMsg: String; bErro: Boolean);
@@ -164,7 +164,7 @@ begin
 //
   try
     if Assigned(FShowLog) then
-      FShowLog(sMsg);
+      FShowLog(sMsg, bErro);
   except
   end;
 end;
@@ -192,7 +192,7 @@ begin
   except on E: Exception do
     try
       if Assigned(FShowLog) then
-       FShowLog('Erro ao Salvar:'+ E.Message);
+       FShowLog('Erro ao Salvar:'+ E.Message, True);
     except
     end;
   end;
@@ -558,7 +558,8 @@ begin
           TMethod.AtenderChamada,
           TMethod.RetomarChamada: AtenderChamada(TOrigemComando.Remoto, Method = TMethod.RetomarChamada);
           TMethod.RecusarChamada: RecusarChamada(TOrigemComando.Remoto);
-          TMethod.FinalizarChamada: FinalizarChamada(TOrigemComando.Remoto);
+          TMethod.FinalizarChamada,
+          TMethod.UsuarioDesconectado: FinalizarChamada(TOrigemComando.Remoto);
           TMethod.CancelarChamada: CancelarChamada(TOrigemComando.Remoto);
           TMethod.DestinatarioOcupado: DestinatarioOcupado;
         end;

@@ -68,7 +68,7 @@ type
     procedure ServiceConnected(const LocalService: TAndroidBaseService);
     procedure ServiceDisconnected;
     procedure ExibirTelaInicial;
-    procedure ShowLog(sMsg: String);
+    procedure ShowLog(sMsg: String; bErro: Boolean);
     procedure ConfigurarTelaLigacao;
   public
     { Public declarations }
@@ -259,13 +259,16 @@ begin
   TAndroidHelper.Activity.startActivity(I);
 end;
 
-procedure TDesktopView.ShowLog(sMsg: String);
+procedure TDesktopView.ShowLog(sMsg: String; bErro: Boolean);
 begin
   TThread.Synchronize(
     nil,
     procedure
     begin
       try
+        if bErro then
+          ShowMessage(sMsg);
+
 //      Button1.Visible := False;
 //        Memo1.Visible := True;
 //        Memo1.Lines.Insert(0, sMsg);

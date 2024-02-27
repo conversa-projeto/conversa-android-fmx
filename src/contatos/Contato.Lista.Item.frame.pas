@@ -18,6 +18,7 @@ type
     Line1: TLine;
     lytClient: TLayout;
     imgFoto: TImage;
+    Text1: TText;
     procedure rctClientClick(Sender: TObject);
   private
     { Private declarations }
@@ -52,15 +53,18 @@ begin
   Result := Self;
   Result.lblNome.Text := Value;
   Result.imgFoto.MultiResBitmap.Clear;
+//  Exit;
   s := TStringStream.Create;
   try
     with TGravatar.Instance.GetGravatar(Value[1], value[1]+'@teste.com') do
     begin
+      Result.Text1.Text := Value[1];
+      Result.imgFoto.Visible := False;
       crclFoto.Fill.Color := Color;
-      Image.SaveToStream(s);
+//      Image.SaveToStream(s);
     end;
-    s.Position := 0;
-    Result.imgFoto.MultiResBitmap.LoadItemFromStream(s, 50);
+//    s.Position := 0;
+//    Result.imgFoto.MultiResBitmap.LoadItemFromStream(s, 50);
   finally
     s.DisposeOf;
   end;

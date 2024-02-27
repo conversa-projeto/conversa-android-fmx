@@ -4,8 +4,8 @@
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
     <PropertyGroup>
-        <DeviceId Condition="'$(Platform)'=='Android'"/>
-        <DeviceId Condition="'$(Platform)'=='Android64'"/>
+        <DeviceId Condition="'$(Platform)'=='Android'">127.0.0.1:58526</DeviceId>
+        <DeviceId Condition="'$(Platform)'=='Android64'">192.168.1.51:40785</DeviceId>
         <DeviceId Condition="'$(Platform)'=='iOSDevice64'"/>
         <DeviceId Condition="'$(Platform)'=='iOSSimARM64'"/>
     </PropertyGroup>
@@ -30,10 +30,10 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="Android64\Release\colors.xml" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\values\</RemoteDir>
-            <RemoteName>colors.xml</RemoteName>
-            <DeployClass>Android_Colors</DeployClass>
+        <DeployFile Include=".\images\splash\conversa-splash-470-320-d.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Conversa\res\drawable-normal\</RemoteDir>
+            <RemoteName>splash_image.png</RemoteName>
+            <DeployClass>Android_SplashImage470</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -48,19 +48,28 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="Android64\Release\splash_image_def.xml" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable\</RemoteDir>
-            <RemoteName>splash_image_def.xml</RemoteName>
-            <DeployClass>AndroidSplashImageDef</DeployClass>
+        <DeployFile Include=".\images\splash\conversa-splash-640-480-d.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Conversa\res\drawable-large\</RemoteDir>
+            <RemoteName>splash_image.png</RemoteName>
+            <DeployClass>Android_SplashImage640</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="services\notify\Android64\Debug\libConversaNotify.so" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>Conversa\library\lib\arm64-v8a\</RemoteDir>
-            <RemoteName>libConversaNotify.so</RemoteName>
-            <DeployClass>AndroidServiceOutput</DeployClass>
+        <DeployFile Include="Android64\Release\colors.xml" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Conversa\res\values\</RemoteDir>
+            <RemoteName>colors.xml</RemoteName>
+            <DeployClass>Android_Colors</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="Android64\Release\splash_image_def.xml" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Conversa\res\drawable\</RemoteDir>
+            <RemoteName>splash_image_def.xml</RemoteName>
+            <DeployClass>AndroidSplashImageDef</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -75,10 +84,28 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-640-480-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-large\</RemoteDir>
+        <DeployFile Include=".\images\splash\conversa-splash-426-320-d.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Conversa\res\drawable-small\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage640</DeployClass>
+            <DeployClass>Android_SplashImage426</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="services\notify\Android64\Debug\libConversaNotify.so" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>Conversa\library\lib\arm64-v8a\</RemoteDir>
+            <RemoteName>libConversaNotify.so</RemoteName>
+            <DeployClass>AndroidServiceOutput</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include=".\images\splash\conversa-splash-960-720-d.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>Conversa\res\drawable-xlarge\</RemoteDir>
+            <RemoteName>splash_image.png</RemoteName>
+            <DeployClass>Android_SplashImage960</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -102,7 +129,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-960-720-d.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include=".\images\splash\conversa-splash-960-720-d.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Conversa\res\drawable-xlarge\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage960</DeployClass>
@@ -419,24 +446,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-960-720-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-xlarge\</RemoteDir>
-            <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage960</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-426-320-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-small\</RemoteDir>
-            <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage426</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include=".\images\launcher\logo-36.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\drawable-ldpi\</RemoteDir>
             <RemoteName>ic_launcher.png</RemoteName>
@@ -518,15 +527,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-470-320-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-normal\</RemoteDir>
-            <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage470</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="src\services\notify\Android64\Release\libConversaNotify.so" Condition="'$(Config)'=='Release'">
             <RemoteDir>Conversa\library\lib\arm64-v8a\</RemoteDir>
             <RemoteName>libConversaNotify.so</RemoteName>
@@ -538,15 +538,6 @@
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='Android'">
-        <DeployFile Include=".\images\splash\conversa-splash-640-480-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-large\</RemoteDir>
-            <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage640</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="Android\Debug\strings.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values\</RemoteDir>
             <RemoteName>strings.xml</RemoteName>
@@ -584,15 +575,6 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="Android\Release\styles.xml" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\values\</RemoteDir>
-            <RemoteName>styles.xml</RemoteName>
-            <DeployClass>AndroidSplashStyles</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\drawable-hdpi\</RemoteDir>
             <RemoteName>ic_launcher.png</RemoteName>
@@ -606,6 +588,15 @@
             <RemoteDir>Conversa\res\drawable-hdpi\</RemoteDir>
             <RemoteName>ic_launcher.png</RemoteName>
             <DeployClass>Android_LauncherIcon72</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="Android\Release\styles.xml" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Conversa\res\values\</RemoteDir>
+            <RemoteName>styles.xml</RemoteName>
+            <DeployClass>AndroidSplashStyles</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -642,15 +633,6 @@
             <RemoteDir>Conversa\res\values-v21\</RemoteDir>
             <RemoteName>styles.xml</RemoteName>
             <DeployClass>AndroidSplashStylesV21</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-960-720-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-xlarge\</RemoteDir>
-            <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage960</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -701,20 +683,20 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include=".\images\splash\conversa-splash-960-720-d.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Conversa\res\drawable-xlarge\</RemoteDir>
+            <RemoteName>splash_image.png</RemoteName>
+            <DeployClass>Android_SplashImage960</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="Android\Debug\Conversa.classes" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\classes\</RemoteDir>
             <RemoteName>Conversa.classes</RemoteName>
             <DeployClass>AndroidClasses</DeployClass>
             <Operation>64</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="Android\Debug\styles-v21.xml" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>Conversa\res\values-v21\</RemoteDir>
-            <RemoteName>styles.xml</RemoteName>
-            <DeployClass>AndroidSplashStylesV21</DeployClass>
-            <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -732,6 +714,15 @@
             <RemoteDir>Conversa\library\lib\armeabi\</RemoteDir>
             <RemoteName>libConversa.so</RemoteName>
             <DeployClass>AndroidLibnativeArmeabiFile</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="Android\Debug\styles-v21.xml" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>Conversa\res\values-v21\</RemoteDir>
+            <RemoteName>styles.xml</RemoteName>
+            <DeployClass>AndroidSplashStylesV21</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -855,10 +846,10 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-470-320-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-normal\</RemoteDir>
+        <DeployFile Include=".\images\splash\conversa-splash-426-320-d.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>Conversa\res\drawable-small\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage470</DeployClass>
+            <DeployClass>Android_SplashImage426</DeployClass>
             <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
@@ -936,7 +927,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-426-320-d.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include=".\images\splash\conversa-splash-426-320-d.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Conversa\res\drawable-small\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage426</DeployClass>
@@ -946,6 +937,15 @@
             <Overwrite>True</Overwrite>
         </DeployFile>
         <DeployFile Include=".\images\splash\conversa-splash-470-320-d.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>Conversa\res\drawable-normal\</RemoteDir>
+            <RemoteName>splash_image.png</RemoteName>
+            <DeployClass>Android_SplashImage470</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include=".\images\splash\conversa-splash-470-320-d.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Conversa\res\drawable-normal\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage470</DeployClass>
@@ -999,15 +999,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include=".\images\splash\conversa-splash-426-320-d.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Conversa\res\drawable-small\</RemoteDir>
-            <RemoteName>splash_image.png</RemoteName>
-            <DeployClass>Android_SplashImage426</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="$(BDS)\lib\android\debug\mips\libnative-activity.so" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\library\lib\mips\</RemoteDir>
             <RemoteName>libConversa.so</RemoteName>
@@ -1036,6 +1027,15 @@
             <Overwrite>True</Overwrite>
         </DeployFile>
         <DeployFile Include=".\images\splash\conversa-splash-640-480-d.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>Conversa\res\drawable-large\</RemoteDir>
+            <RemoteName>splash_image.png</RemoteName>
+            <DeployClass>Android_SplashImage640</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include=".\images\splash\conversa-splash-640-480-d.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Conversa\res\drawable-large\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage640</DeployClass>
