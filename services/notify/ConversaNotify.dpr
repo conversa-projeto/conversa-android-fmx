@@ -11,7 +11,9 @@ uses
   Chamada.Vibrator.Service.Android in '..\..\src\chamada\Chamada.Vibrator.Service.Android.pas',
   Chamada.Vibrator.Service in '..\..\src\chamada\Chamada.Vibrator.Service.pas',
   Chamada.WakeLock in '..\..\src\chamada\Chamada.WakeLock.pas',
-  Conversa.App.Events in '..\..\lib\Conversa.App.Events.pas';
+  Conversa.App.Events in '..\..\lib\Conversa.App.Events.pas',
+  Android.KeyguardManager in '..\..\lib\android\Android.KeyguardManager.pas',
+  DW.Androidapi.JNI.KeyguardManager in '..\..\lib\android\DW.Androidapi.JNI.KeyguardManager.pas';
 
 {$R *.res}
 

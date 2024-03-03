@@ -24,6 +24,7 @@ uses
   FMX.ScrollBox,
   FMX.StdCtrls,
   FMX.Types,
+  FMX.Helpers.Android,
   IdBaseComponent,
   IdComponent,
   IdTCPClient,
@@ -48,6 +49,7 @@ type
     tmrTeste: TTimer;
     TCP: TIdTCPClient;
     UDP: TIdUDPClient;
+    Memo1: TMemo;
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -159,6 +161,7 @@ begin
       JStringToString(TJManifest_permission.JavaClass.VIBRATE),
       JStringToString(TJManifest_permission.JavaClass.WAKE_LOCK),
       JStringToString(TJManifest_permission.JavaClass.WRITE_EXTERNAL_STORAGE),
+      JStringToString(TJManifest_permission.JavaClass.SET_ALARM),
       JStringToString(TJManifest_permission.JavaClass.ACCESS_NETWORK_STATE)
     ],
     procedure(const Permissions: TClassicStringDynArray; const GrantResults: TClassicPermissionStatusDynArray)
@@ -174,6 +177,7 @@ begin
 //        PostRationaleProc;
 //      end);
     end);
+
   if not TConfiguracoesView.EstaConfigurado then
     ExibirTelaConfiguracao
   else
@@ -270,8 +274,8 @@ begin
           ShowMessage(sMsg);
 
 //      Button1.Visible := False;
-//        Memo1.Visible := True;
-//        Memo1.Lines.Insert(0, sMsg);
+        Memo1.Visible := True;
+        Memo1.Lines.Insert(0, sMsg);
       except
       end;
     end
@@ -348,11 +352,26 @@ end;
 
 procedure TDesktopView.OnFinalizarChamada;
 begin
-  if not Assigned(FChamadaView) then
-    Exit;
+  AddLog('OnFinalizarChamada');
+  if Assigned(FChamadaView) then
+  begin
+    FChamadaView.lytClient.Visible := False;
+    FChamadaView.Rectangle1.Visible := False;
+  end;
 
-  FChamadaView.lytClient.Visible := False;
-  FChamadaView.Rectangle1.Visible := False;
+
+  AddLog('OnFinalizarChamada - F');
+  if Assigned(Service) then
+    AddLog('OnFinalizarChamada - Assigned(Service)');
+
+  if Assigned(Service) and Service.FExibindoNaTelaBloqueio then
+    AddLog('OnFinalizarChamada - Service.FExibindoNaTelaBloqueio');
+
+  if Assigned(Service) and Service.FExibindoNaTelaBloqueio then
+  begin
+    AddLog('OnFinalizarChamada');
+    TAndroidHelper.Activity.moveTaskToBack(True);
+  end;
 end;
 
 procedure TDesktopView.IniciarChamada(User: TUsuario);
@@ -445,6 +464,9 @@ begin
       Service.RecusarChamada(TOrigemComando.Local);
     end
   ).Start;
+
+  OnFinalizarChamada;
+  
   if Assigned(FChamadaView) then
     FreeAndNil(FChamadaView);
 end;
@@ -453,14 +475,30 @@ procedure TDesktopView.FinalizarChamada(bEnviarComando: Boolean);
 begin
   FChamadaView.lytClient.Visible := False;
   FChamadaView.Rectangle1.Visible := False;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      Service.FinalizarChamada(TOrigemComando.Local);
-    end
-  ).Start;
-  if Assigned(FChamadaView) then
-    FreeAndNil(FChamadaView);
+
+  if bEnviarComando then
+  begin
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        Service.FinalizarChamada(TOrigemComando.Local);
+      end
+    ).Start;
+    if Assigned(FChamadaView) then
+      FreeAndNil(FChamadaView);
+  end;
+
+
+//  if Assigned(Service) and Service.FExibindoNaTelaBloqueio then
+//    SharedActivity.finishAndRemoveTask;
+
+//  if TOSVersion.Check(5) then
+//    TAndroidHelper.Activity.finishAndRemoveTask
+//  else
+//    TAndroidHelper.Activity.finish;
+//  Self.Hide;
+  //Application.Terminate;
+//  TJSystem.JavaClass.exit(2);
 end;
 
 procedure TDesktopView.VivaVoz(Value: Boolean);

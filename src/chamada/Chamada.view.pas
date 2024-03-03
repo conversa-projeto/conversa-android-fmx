@@ -46,7 +46,6 @@ type
     function Status(Value: TChamadaStatus): TChamadaView;
     function Nome(Value: String): TChamadaView;
     function Informacoes(Value: String): TChamadaView;
-
     function SetStatus(const Value: TChamadaStatus): TChamadaView;
     function OnAtender(Proc: TProc): TChamadaView;
     function OnVivaVoz(Proc: TProc<Boolean>): TChamadaView;

@@ -123,6 +123,8 @@
         <AUP_CHANGE_WIFI_STATE>true</AUP_CHANGE_WIFI_STATE>
         <AUP_CHANGE_WIFI_MULTICAST_STATE>true</AUP_CHANGE_WIFI_MULTICAST_STATE>
         <AUP_CHANGE_NETWORK_STATE>true</AUP_CHANGE_NETWORK_STATE>
+        <AUP_SCHEDULE_EXACT_ALARM>true</AUP_SCHEDULE_EXACT_ALARM>
+        <AUP_SET_ALARM>true</AUP_SET_ALARM>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;fmx;DbxCommonDriver;bindengine;IndyIPCommon;FireDACCommonDriver;IndyProtocols;IndyIPClient;dbxcds;bindcomp;FmxTeeUI;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;rtl;FireDACSqliteDriver;DbxClientDriver;RESTComponents;DBXSqliteDriver;IndyIPServer;fmxFireDAC;dbexpress;dsnapxml;soapmidas;inet;FireDAC;fmxase;xmlrtl;tethering;dbrtl;dsnap;CloudService;CustomIPTransport;FMXTee;soaprtl;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -236,6 +238,8 @@
         <DCCReference Include="..\..\src\chamada\Chamada.Vibrator.Service.pas"/>
         <DCCReference Include="..\..\src\chamada\Chamada.WakeLock.pas"/>
         <DCCReference Include="..\..\lib\Conversa.App.Events.pas"/>
+        <DCCReference Include="..\..\lib\android\Android.KeyguardManager.pas"/>
+        <DCCReference Include="..\..\lib\android\DW.Androidapi.JNI.KeyguardManager.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

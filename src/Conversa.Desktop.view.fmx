@@ -26,9 +26,20 @@ object DesktopView: TDesktopView
   object lytClient: TLayout
     Align = Client
     Size.Width = 340.000000000000000000
-    Size.Height = 480.000000000000000000
+    Size.Height = 343.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
+  end
+  object Memo1: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Align = Top
+    Size.Width = 340.000000000000000000
+    Size.Height = 137.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 5
+    Viewport.Width = 340.000000000000000000
+    Viewport.Height = 137.000000000000000000
   end
   object TCP: TIdTCPClient
     BoundIP = 'S'

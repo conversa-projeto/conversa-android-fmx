@@ -11,7 +11,6 @@ public class BootReceiver extends BroadcastReceiver
   {
     Intent launchintent = new Intent();
     launchintent.setClassName(context, "com.embarcadero.firemonkey.FMXNativeActivity");
-    // launchintent.setClassName(“com.embarcadero.DelphiBootReceiver”,”com.embarcadero.firemonkey.FMXNativeActivity”);
     launchintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     context.startActivity(launchintent);
   }

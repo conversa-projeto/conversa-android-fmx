@@ -25,7 +25,9 @@ uses
   Conversa.Notify.Inicio in 'services\notify\src\Conversa.Notify.Inicio.pas' {ConversaNotifyServiceModule: TAndroidService},
   Contato.Lista.Item.frame in 'src\contatos\Contato.Lista.Item.frame.pas' {ContatoItem: TFrame},
   Conversa.Gravatar in 'lib\Conversa.Gravatar.pas',
-  Conversa.App.Events in 'lib\Conversa.App.Events.pas';
+  Conversa.App.Events in 'lib\Conversa.App.Events.pas',
+  Android.KeyguardManager in 'lib\android\Android.KeyguardManager.pas',
+  DW.Androidapi.JNI.KeyguardManager in 'lib\android\DW.Androidapi.JNI.KeyguardManager.pas';
 
 {$R *.res}
 

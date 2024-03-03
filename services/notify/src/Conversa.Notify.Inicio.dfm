@@ -1,9 +1,11 @@
 object ConversaNotifyServiceModule: TConversaNotifyServiceModule
   OnCreate = AndroidServiceCreate
+  OnDestroy = AndroidServiceDestroy
   OnBind = AndroidServiceBind
   OnUnBind = AndroidServiceUnBind
   OnRebind = AndroidServiceRebind
   OnTaskRemoved = AndroidServiceTaskRemoved
+  OnTrimMemory = AndroidServiceTrimMemory
   OnStartCommand = AndroidServiceStartCommand
   Height = 357
   Width = 486

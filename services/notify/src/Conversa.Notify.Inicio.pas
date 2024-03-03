@@ -34,7 +34,8 @@ uses
   Tipos,
   Chamada.Audio,
   Chamada.Vibrator.Service,
-  Chamada.WakeLock;
+  Chamada.WakeLock,
+  Android.KeyguardManager;
 
 type
   TOrigemComando = (Desconhecida, Local, Remoto);
@@ -50,6 +51,8 @@ type
     function AndroidServiceUnBind(const Sender: TObject; const AnIntent: JIntent): Boolean;
     procedure AndroidServiceTaskRemoved(const Sender: TObject; const ARootIntent: JIntent);
     procedure TimerUDPTimer(Sender: TObject);
+    procedure AndroidServiceTrimMemory(const Sender: TObject; Level: Integer);
+    procedure AndroidServiceDestroy(Sender: TObject);
   private const
     NotificationId = -1;
     NotificationChannelId = 'com_conversa_notify_service_channel_id';
@@ -98,6 +101,7 @@ type
     OnCancelarChamada: TProc;
     OnDestinatarioOcupado: TProc;
     FRecebendoChamada: Boolean;
+    FExibindoNaTelaBloqueio: Boolean;
     TrazerPraFrente: TProc;
     AppEvents: TConversaAppEvents;
     function ConectarAoIniciar: Boolean;
@@ -115,7 +119,9 @@ type
     procedure NotificarLigacao;
     procedure AddLog(sMsg: String; bErro: Boolean); overload;
     procedure AddLog(sMsg: String); overload;
+    procedure AddLogAndroid(sMsg: String);
     procedure SaveLog(sMsg: String);
+    procedure AgendarReinicio;
   end;
 
 var
@@ -152,21 +158,47 @@ begin
   AddLog(sMsg, False);
 end;
 
+procedure TConversaNotifyServiceModule.AddLogAndroid(sMsg: String);
+begin
+  LOGV(PAnsiChar(AnsiString('Conversa: '+ sMsg)));
+end;
+
 procedure TConversaNotifyServiceModule.AddLog(sMsg: String; bErro: Boolean);
 begin
 //  if not bErro then
 //    Exit;
+  LOGV(PAnsiChar(AnsiString('Conversa: '+ sMsg)));
   Sleep(1);
   sMsg := FormatDateTime('YYYY/mm/dd HH:nn:ss.zzz', Now) +' | '+ sMsg;
   SaveLog(sMsg);
 //  Exit;
-//  LOGV(PAnsiChar(AnsiString('Conversa: '+ sMsg)));
 //
   try
     if Assigned(FShowLog) then
       FShowLog(sMsg, bErro);
   except
   end;
+end;
+
+procedure TConversaNotifyServiceModule.AgendarReinicio;
+var
+  Intent: JIntent;
+  PendingIntent: JPendingIntent;
+  function getTimeAfterInSecs(Seconds: Integer): Int64;
+  var
+    Calendar: JCalendar;
+  begin
+    Calendar := TJCalendar.JavaClass.getInstance;
+    Calendar.add(TJCalendar.JavaClass.MILLISECOND, Seconds);
+    Result := Calendar.getTimeInMillis;
+  end;
+begin
+  AddLogAndroid('Agendar Reinicio');
+  AddLog('Agendar reinicio');
+  Intent := TJIntent.Create;
+  Intent.setClassName(TAndroidHelper.Context, StringToJString(TConversaNotifyServiceModule.ServiceClassName)).setPackage(TAndroidHelper.Context.getPackageName);
+  PendingIntent := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 1, Intent, TJPendingIntent.JavaClass.FLAG_ONE_SHOT);
+  TAndroidHelper.AlarmManager.&setExactAndAllowWhileIdle(TJAlarmManager.JavaClass.RTC_WAKEUP, getTimeAfterInSecs(100), PendingIntent);
 end;
 
 procedure TConversaNotifyServiceModule.Save(s: String);
@@ -248,33 +280,32 @@ begin
   AddLog('AndroidServiceCreate - F');
 end;
 
+procedure TConversaNotifyServiceModule.AndroidServiceDestroy(Sender: TObject);
+begin
+  AddLogAndroid('AndroidServiceDestroy');
+  AgendarReinicio;
+end;
+
 function TConversaNotifyServiceModule.AndroidServiceStartCommand(const Sender: TObject; const Intent: JIntent; Flags, StartId: Integer): Integer;
 begin
   AddLog('AndroidServiceStartCommand');
   if ConectarAoIniciar then
     IniciarThreadConexao;
-  Result := TJService.JavaClass.START_NOT_STICKY;
+  Result := TJService.JavaClass.START_STICKY;
 end;
 
 procedure TConversaNotifyServiceModule.AndroidServiceTaskRemoved(const Sender: TObject; const ARootIntent: JIntent);
-var
-  Intent: JIntent;
-  PendingIntent: JPendingIntent;
-  function getTimeAfterInSecs(Seconds: Integer): Int64;
-  var
-    Calendar: JCalendar;
-  begin
-    Calendar := TJCalendar.JavaClass.getInstance;
-    Calendar.add(TJCalendar.JavaClass.MILLISECOND, Seconds);
-    Result := Calendar.getTimeInMillis;
-  end;
 begin
 //  AddLog('AndroidServiceTaskRemoved - I');
-  Intent := TJIntent.Create;
-  Intent.setClassName(TAndroidHelper.Context, StringToJString(TConversaNotifyServiceModule.ServiceClassName)).setPackage(TAndroidHelper.Context.getPackageName);
-  PendingIntent := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 1, Intent, TJPendingIntent.JavaClass.FLAG_ONE_SHOT);
-  TAndroidHelper.AlarmManager.&set(TJAlarmManager.JavaClass.RTC_WAKEUP, getTimeAfterInSecs(100), PendingIntent);
+  AddLogAndroid('AndroidServiceTaskRemoved');
+  AgendarReinicio;
 //  AddLog('AndroidServiceTaskRemoved - F');
+end;
+
+procedure TConversaNotifyServiceModule.AndroidServiceTrimMemory(const Sender: TObject; Level: Integer);
+begin
+  AddLogAndroid('AndroidServiceTrimMemory');
+  AgendarReinicio;
 end;
 
 function TConversaNotifyServiceModule.AndroidServiceBind(const Sender: TObject; const AnIntent: JIntent): JIBinder;
@@ -284,7 +315,7 @@ begin
 //  // to avoid being affected by the 'background location limits' introduced as part of Android 8.0.
 //  JavaService.stopForeground(True);
   AddLog('AndroidServiceBind - I');
-  Result := GetBinder;
+  Result := nil;//GetBinder;
   AddLog('AndroidServiceBind - F');
 end;
 
@@ -302,10 +333,12 @@ begin
 //  // The native activity stopped to be visible and, therefore, this service needs to run in the foreground, otherwise,
 //  // it is affected by the background location limits introduced as part of Android 8.0. Running a service in the foreground
 //  // requires an ongoing notification to be present to the user in order to indicate that the application is actively running.
-//  JavaService.startForeground(NotificationId, GetNotification);
+  JavaService.startForeground(NotificationId, GetNotification);
 //
 //  FIsRunningInForeground := True;
+  AddLogAndroid('AndroidServiceUnBind');
   Result := True;
+  AgendarReinicio;
 end;
 
 function TConversaNotifyServiceModule.ConectarAoIniciar: Boolean;
@@ -388,6 +421,7 @@ begin
   AddLog('GetNotification - I');
   if not Assigned(FNotificationBuilder) then
   begin
+
     FNotificationBuilder := TJapp_NotificationCompat_Builder.JavaClass.init(TAndroidHelper.Context, StringToJString(NotificationChannelId));
     FNotificationBuilder
       .setPriority(TJNotification.JavaClass.PRIORITY_HIGH)
@@ -627,21 +661,18 @@ var
   aUri: Jnet_Uri;
 begin
   FRecebendoChamada := True;
+  FExibindoNaTelaBloqueio := True;
   AddLog('ReceberChamada');
-  if Assigned(OnReceberChamada) then
-  begin
-    AddLog('Método de Recebimento de Chamada!');
-    TrazerPraFrente;
-    OnReceberChamada;
-  end
-  else
+  FExibindoNaTelaBloqueio := TKeygardManager.New.ExibindoTelaBloqueio;
+  if FExibindoNaTelaBloqueio then
   begin
     AddLog('Tentando iniciar o app!');
     AbrirTela;
   end;
+  TrazerPraFrente;
+  OnReceberChamada;
   aUri := TJRingtoneManager.JavaClass.getActualDefaultRingtoneUri(TAndroidHelper.Context, TJRingtoneManager.JavaClass.TYPE_RINGTONE);
   FRing := TJRingtoneManager.JavaClass.getRingtone(TAndroidHelper.Context, aUri);
-  FRing.play;
   FWakeLock := TWakeLock.New;
   FVibrator := TVibratorService.New.Call;
 end;
