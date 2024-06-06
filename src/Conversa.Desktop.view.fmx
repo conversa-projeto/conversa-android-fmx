@@ -12,8 +12,10 @@ object DesktopView: TDesktopView
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
   OnDestroy = FormDestroy
   OnShow = FormShow
+  OnHide = FormHide
   OnVirtualKeyboardShown = FormVirtualKeyboardShown
   OnVirtualKeyboardHidden = FormVirtualKeyboardHidden
   DesignerMasterStyle = 3
@@ -38,8 +40,8 @@ object DesktopView: TDesktopView
     Size.Height = 137.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 5
-    Viewport.Width = 340.000000000000000000
-    Viewport.Height = 137.000000000000000000
+    Viewport.Width = 332.000000000000000000
+    Viewport.Height = 129.000000000000000000
   end
   object TCP: TIdTCPClient
     BoundIP = 'S'

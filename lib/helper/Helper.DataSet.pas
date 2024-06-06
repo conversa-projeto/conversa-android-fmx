@@ -1432,6 +1432,7 @@ var
   ss: TStringStream;
   Data: Variant;
 begin
+  Result := Self;
   sDados := EmptyStr;
   for I := 0 to Pred(jaValue.Count) do
   begin

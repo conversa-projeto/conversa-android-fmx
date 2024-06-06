@@ -187,17 +187,17 @@ begin
           try
             while not cdsContatos.Eof do
             try
-              Item := TListBoxItem.Create(nil);
-              Item.Text := '';
-              Item.Height := 60;
-              Item.Selectable := False;
-              Item.Tag := cdsContatos.IGGetInt('id');
-              Item.ContatoItem :=
-                TContatoItem.New(Item, cdsContatos.IGGetInt('id'))
-                  .Nome(cdsContatos.IGGetStr('nome'))
-                  .Informacao1(cdsContatos.IGGetStr('email'))
-                  .IniciarChamada(Iniciar);
-              lstContatos.AddObject(Item);
+                Item := TListBoxItem.Create(nil);
+                Item.Text := '';
+                Item.Height := 60;
+                Item.Selectable := False;
+                Item.Tag := cdsContatos.IGGetInt('id');
+                Item.ContatoItem :=
+                  TContatoItem.New(Item, cdsContatos.IGGetInt('id'))
+                    .Nome(cdsContatos.IGGetStr('nome'))
+                    .Informacao1(cdsContatos.IGGetStr('email'))
+                    .IniciarChamada(Iniciar);
+                lstContatos.AddObject(Item);
             finally
               cdsContatos.Next;
             end;

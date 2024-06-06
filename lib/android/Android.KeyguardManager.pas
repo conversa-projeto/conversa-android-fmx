@@ -11,6 +11,7 @@ unit Android.KeyguardManager;
 interface
 uses
   System.Messaging, System.Classes, //FMX.Dialogs,
+  System.SysUtils,
   {$IFDEF ANDROID}
     Androidapi.JNI.GraphicsContentViewText,
     Androidapi.Helpers,
@@ -118,13 +119,16 @@ function TKeygardManager.StartActivityKeyGuard(CallBackSuccess : TCallbackProc =
 var
   Intent: JIntent;
 begin
-  Result := false;
-  PrcSuccess := CallBackSuccess;
-  PrcError := CallBackError;
-  Intent := FKeyguardManager.createConfirmDeviceCredentialIntent
-    (StrToJCharSequence('Mensagem KeyGuard'), StrToJCharSequence(''));
-  TAndroidHelper.Activity.startActivityForResult(Intent, 000);
-  Result := true;
+  try
+    PrcSuccess := CallBackSuccess;
+    PrcError := CallBackError;
+    Intent := FKeyguardManager.createConfirmDeviceCredentialIntent
+      (StrToJCharSequence('Mensagem KeyGuard'), StrToJCharSequence(''));
+    TAndroidHelper.Activity.startActivityForResult(Intent, 000);
+    Result := True;
+  except
+    Result := False;
+  end;
 end;
 
 end.

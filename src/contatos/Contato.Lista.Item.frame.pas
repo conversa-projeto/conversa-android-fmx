@@ -3,9 +3,12 @@ unit Contato.Lista.Item.frame;
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Objects, FMX.Layouts, FMX.Controls.Presentation, Conversa.Gravatar;
+  FMX.Objects, FMX.Layouts, FMX.Controls.Presentation, Conversa.Gravatar,
+
+  System.StrUtils,
+  System.DateUtils;
 
 type
   TContatoItem = class(TFrame)
@@ -23,6 +26,7 @@ type
   private
     { Private declarations }
     FIniciarChamada: TProc<Integer>;
+    function FormatDateTime(Value: TDateTime): String;
   public
     { Public declarations }
     ID: Integer;
@@ -85,6 +89,37 @@ function TContatoItem.IniciarChamada(Proc: TProc<Integer>): TContatoItem;
 begin
   Result := Self;
   FIniciarChamada := Proc ;
+end;
+
+function TContatoItem.FormatDateTime(Value: TDateTime): String;
+var
+  Between: Int64;
+begin
+  Between := SecondsBetween(Value, Now);
+  if Between = 0 then
+    Exit('agora');
+
+  if Between <= SecsPerMin then
+    Exit(Between.ToString +' segundo'+ IfThen(Between = 1, '', 's') +' atrás');
+
+  Between := MinutesBetween(Value, Now);
+  if Between <= MinsPerHour then
+    Exit(Between.ToString +' minuto'+ IfThen(Between = 1, '', 's') +' atrás');
+
+  Between := HoursBetween(Value, Now);
+  if Between <= HoursPerDay then
+    Exit(Between.ToString +' hora'+ IfThen(Between = 1, '', 's') +' atrás');
+
+  Between := DaysBetween(Value, Now);
+  if Between = 1 then
+    Exit('ontem')
+  else
+  if YearOf(Value) <> YearOf(Now) then
+  begin
+    Exit(System.DateUtils.FormatDateTime(Value, FormatSettings.ShortDateFormat));
+  end
+  else
+    Exit(DateToStr(Value))
 end;
 
 end.

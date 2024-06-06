@@ -14,6 +14,7 @@ uses
   System.SysUtils,
   System.Threading,
   System.IOUtils,
+  System.DateUtils,
   IdBaseComponent,
   IdComponent,
   IdGlobal,
@@ -59,6 +60,7 @@ type
     NotificationCallId = -2;
     NotificationChannelCallId = 'com_conversa_notify_service_call_channel_id';
   private
+    FMonitorar: Boolean;
     FAddlog: TProc<String>;
     FForeground: Boolean;
     FNotificationManager: JNotificationManager;
@@ -121,7 +123,10 @@ type
     procedure AddLog(sMsg: String); overload;
     procedure AddLogAndroid(sMsg: String);
     procedure SaveLog(sMsg: String);
-    procedure AgendarReinicio;
+
+    class procedure AgendarReinicio(MSeconds: Cardinal);
+
+    procedure IniciarThreadMonitoramento;
   end;
 
 var
@@ -180,25 +185,28 @@ begin
   end;
 end;
 
-procedure TConversaNotifyServiceModule.AgendarReinicio;
+class procedure TConversaNotifyServiceModule.AgendarReinicio(MSeconds: Cardinal);
 var
   Intent: JIntent;
   PendingIntent: JPendingIntent;
-  function getTimeAfterInSecs(Seconds: Integer): Int64;
+  function getTimeAfterInSecs: Int64;
   var
     Calendar: JCalendar;
   begin
     Calendar := TJCalendar.JavaClass.getInstance;
-    Calendar.add(TJCalendar.JavaClass.MILLISECOND, Seconds);
+    if MSeconds = 0 then
+      MSeconds := 100;
+
+    Calendar.add(TJCalendar.JavaClass.MILLISECOND, MSeconds);
     Result := Calendar.getTimeInMillis;
   end;
 begin
-  AddLogAndroid('Agendar Reinicio');
-  AddLog('Agendar reinicio');
+//  AddLogAndroid('Agendar Reinicio');
+//  AddLog('Agendar reinicio');
   Intent := TJIntent.Create;
   Intent.setClassName(TAndroidHelper.Context, StringToJString(TConversaNotifyServiceModule.ServiceClassName)).setPackage(TAndroidHelper.Context.getPackageName);
   PendingIntent := TJPendingIntent.JavaClass.getActivity(TAndroidHelper.Context, 1, Intent, TJPendingIntent.JavaClass.FLAG_ONE_SHOT);
-  TAndroidHelper.AlarmManager.&setExactAndAllowWhileIdle(TJAlarmManager.JavaClass.RTC_WAKEUP, getTimeAfterInSecs(100), PendingIntent);
+  TAndroidHelper.AlarmManager.&setExactAndAllowWhileIdle(TJAlarmManager.JavaClass.RTC_WAKEUP, getTimeAfterInSecs, PendingIntent);
 end;
 
 procedure TConversaNotifyServiceModule.Save(s: String);
@@ -278,12 +286,13 @@ begin
   if ConectarAoIniciar then
     IniciarThreadConexao;
   AddLog('AndroidServiceCreate - F');
+  IniciarThreadMonitoramento;
 end;
 
 procedure TConversaNotifyServiceModule.AndroidServiceDestroy(Sender: TObject);
 begin
   AddLogAndroid('AndroidServiceDestroy');
-  AgendarReinicio;
+  AgendarReinicio(0);
 end;
 
 function TConversaNotifyServiceModule.AndroidServiceStartCommand(const Sender: TObject; const Intent: JIntent; Flags, StartId: Integer): Integer;
@@ -298,14 +307,14 @@ procedure TConversaNotifyServiceModule.AndroidServiceTaskRemoved(const Sender: T
 begin
 //  AddLog('AndroidServiceTaskRemoved - I');
   AddLogAndroid('AndroidServiceTaskRemoved');
-  AgendarReinicio;
+  AgendarReinicio(0);
 //  AddLog('AndroidServiceTaskRemoved - F');
 end;
 
 procedure TConversaNotifyServiceModule.AndroidServiceTrimMemory(const Sender: TObject; Level: Integer);
 begin
   AddLogAndroid('AndroidServiceTrimMemory');
-  AgendarReinicio;
+  AgendarReinicio(0);
 end;
 
 function TConversaNotifyServiceModule.AndroidServiceBind(const Sender: TObject; const AnIntent: JIntent): JIBinder;
@@ -338,7 +347,7 @@ begin
 //  FIsRunningInForeground := True;
   AddLogAndroid('AndroidServiceUnBind');
   Result := True;
-  AgendarReinicio;
+  AgendarReinicio(0);
 end;
 
 function TConversaNotifyServiceModule.ConectarAoIniciar: Boolean;
@@ -383,6 +392,28 @@ begin
         end;
       end;
       AddLog('IniciarThreadConexao - Thread - F');
+    end
+  ).Start;
+end;
+
+procedure TConversaNotifyServiceModule.IniciarThreadMonitoramento;
+begin
+  FMonitorar := True;
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      I: Integer;
+    begin
+      while FMonitorar do
+      begin
+        try
+          for I := 1 to 12 do
+            TConversaNotifyServiceModule.AgendarReinicio((I * 5) * MSecsPerSec);
+
+          Sleep(58 * MSecsPerSec);
+        except
+        end;
+      end;
     end
   ).Start;
 end;

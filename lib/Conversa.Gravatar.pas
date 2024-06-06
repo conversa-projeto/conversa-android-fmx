@@ -31,7 +31,7 @@ type
     destructor Destroy; override;
     function GetGravatar(sName: String; sEmail: String): TGravatarItem;
     class function Instance: TGravatar;
-    class function GenerateRandomColor(const Mix: TColor = TAlphaColors.White): TAlphaColor; static;
+//    class function GenerateRandomColor(const Mix: TAlphaColor = TAlphaColors.White): TAlphaColor; static;
   end;
 
 implementation
@@ -59,15 +59,15 @@ begin
      TAlphaColorF.Create(0,   153, 137).ToAlphaColor];
 end;
 
-class function TGravatar.GenerateRandomColor(const Mix: TColor = TAlphaColors.White): TAlphaColor;
-begin
-
-end;
+//class function TGravatar.GenerateRandomColor(const Mix: TAlphaColor = TAlphaColors.White): TAlphaColor;
+//begin
+//
+//end;
 
 destructor TGravatar.Destroy;
 var
   Gravatar: TGravatarItem;
-  bImagem: TBitmap;
+//  bImagem: TBitmap;
 begin
   for Gravatar in FImages.Values do
     Gravatar.Image.DisposeOf;
@@ -80,9 +80,9 @@ function TGravatar.GetGravatar(sName: String; sEmail: String): TGravatarItem;
 const
   SCALE = 1;
 var
-  Item: TGravatarItem;
+//  Item: TGravatarItem;
   ss: TStringStream;
-  sb: TBrush;
+//  sb: TBrush;
   Red, Green, Blue: Integer;
 begin
   // Cria hash MD5

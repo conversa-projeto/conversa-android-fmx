@@ -57,6 +57,8 @@ type
     procedure FormVirtualKeyboardHidden(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
     procedure FormVirtualKeyboardShown(Sender: TObject;
       KeyboardVisible: Boolean; const Bounds: TRect);
+    procedure FormDeactivate(Sender: TObject);
+    procedure FormHide(Sender: TObject);
   private
     { Private declarations }
     FKBBounds: TRectF;
@@ -88,6 +90,7 @@ type
     procedure TrazerPraFrente;
     procedure ConectarServico;
     procedure ExibirTelaConfiguracao;
+    procedure AgendarReinicio;
   end;
 
 var
@@ -131,11 +134,22 @@ begin
   end;
 end;
 
+procedure TDesktopView.FormDeactivate(Sender: TObject);
+begin
+  AgendarReinicio;
+end;
+
 procedure TDesktopView.FormDestroy(Sender: TObject);
 begin
+  AgendarReinicio;
   Service.FShowLog := nil;
   ServiceConnection.UnbindService;
   FreeAndNil(ServiceConnection);
+end;
+
+procedure TDesktopView.FormHide(Sender: TObject);
+begin
+  AgendarReinicio;
 end;
 
 procedure TDesktopView.FormShow(Sender: TObject);
@@ -528,6 +542,28 @@ begin
   FKBBounds.BottomRight := ScreenToClient(FKBBounds.BottomRight);
   lytClient.Align := TAlignLayout.Top;
   lytClient.Height := Self.ClientHeight - FKBBounds.Height;
+end;
+
+procedure TDesktopView.AgendarReinicio;
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      iSec: Integer;
+      iMSec: Integer;
+    begin
+      for iSec := 0 to 4 do
+      begin
+        for iMSec := 1 to 9 do
+        begin
+          try
+            Service.AgendarReinicio((iSec * MSecsPerSec) + (iMSec * 100));
+          except
+          end;
+        end;
+      end;
+    end
+  ).Start;
 end;
 
 end.
