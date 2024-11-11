@@ -1,0 +1,5 @@
+inherited ChatConteudo: TChatConteudo
+  Align = Top
+  Size.Width = 250.000000000000000000
+  Size.Height = 80.000000000000000000
+end

@@ -1,0 +1,105 @@
+inherited Login: TLogin
+  Size.Height = 334.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Corners = [BottomLeft, BottomRight]
+    Fill.Color = claWhitesmoke
+    Size.Width = 320.000000000000000000
+    Size.Height = 334.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    object lytCenter: TLayout
+      Align = Center
+      Size.Width = 150.000000000000000000
+      Size.Height = 107.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      TabStop = False
+      object rctUsuario: TRectangle
+        Align = Top
+        Margins.Bottom = 10.000000000000000000
+        Size.Width = 150.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 15.000000000000000000
+        YRadius = 15.000000000000000000
+        object edtUsuario: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          StyleLookup = 'transparentedit'
+          TabOrder = 1
+          CanParentFocus = True
+          ReturnKeyType = Next
+          Margins.Left = 8.000000000000000000
+          Margins.Top = 4.000000000000000000
+          Margins.Right = 8.000000000000000000
+          Margins.Bottom = 4.000000000000000000
+          Size.Width = 134.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          TextPrompt = 'Login'
+          OnKeyDown = edtUsuarioKeyDown
+        end
+      end
+      object rctSenha: TRectangle
+        Align = Top
+        Margins.Bottom = 10.000000000000000000
+        Position.Y = 40.000000000000000000
+        Size.Width = 150.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 15.000000000000000000
+        YRadius = 15.000000000000000000
+        object edtSenha: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          StyleLookup = 'transparentedit'
+          TabOrder = 1
+          CanParentFocus = True
+          Password = True
+          Margins.Left = 8.000000000000000000
+          Margins.Top = 4.000000000000000000
+          Margins.Right = 8.000000000000000000
+          Margins.Bottom = 4.000000000000000000
+          Size.Width = 134.000000000000000000
+          Size.Height = 22.000000000000000000
+          Size.PlatformDefault = False
+          TextPrompt = 'Senha'
+          OnKeyDown = edtSenhaKeyDown
+        end
+      end
+      object lytBotaoEntrar: TLayout
+        Align = Top
+        Position.Y = 80.000000000000000000
+        Size.Width = 150.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 2
+        TabStop = False
+        object rctBotaoEntrar: TRectangle
+          Align = Center
+          Cursor = crHandPoint
+          Fill.Color = xFF007FFF
+          Size.Width = 150.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          XRadius = 5.000000000000000000
+          YRadius = 5.000000000000000000
+          OnClick = rctBotaoEntrarClick
+          object txtBotaoEntrar: TText
+            Align = Client
+            HitTest = False
+            Size.Width = 150.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Entrar'
+            TextSettings.FontColor = claWhite
+          end
+        end
+      end
+    end
+  end
+end
