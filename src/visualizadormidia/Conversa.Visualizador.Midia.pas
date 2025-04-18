@@ -68,7 +68,7 @@ uses
   {$IFDEF MSWINDOWS}
   Conversa.Visualizador.Midia.Windows,
   {$ELSE}
-  Macapi.AppKit;
+//  Macapi.AppKit;
   {$ENDIF}
   Conversa.Utils,
   Conversa.Tela.Inicial.view;

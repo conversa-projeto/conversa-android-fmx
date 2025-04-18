@@ -64,7 +64,6 @@ end;
 
 procedure TPrincipalView.Criar;
 begin
-  TChatListagem.New(lytClient);
 end;
 
 procedure TPrincipalView.Layout2Click(Sender: TObject);

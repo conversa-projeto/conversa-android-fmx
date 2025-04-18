@@ -1,6 +1,23 @@
 inherited Chat: TChat
+  HitTest = False
   Size.Width = 622.000000000000000000
   Size.Height = 698.000000000000000000
+  object rtgSombra: TRectangle
+    Align = Contents
+    Fill.Color = x64000000
+    HitTest = False
+    Size.Width = 622.000000000000000000
+    Size.Height = 698.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    Visible = True
+    object aniSombra: TFloatAnimation
+      Duration = 0.200000002980232200
+      PropertyName = 'Opacity'
+      StartValue = 0.000000000000000000
+      StopValue = 0.000000000000000000
+    end
+  end
   object rctFundo: TRectangle
     Align = Client
     Fill.Color = claWhitesmoke
@@ -10,7 +27,7 @@ inherited Chat: TChat
     Stroke.Kind = None
     object rctTitulo: TRectangle
       Align = Top
-      Fill.Color = xFFF0F0F0
+      Fill.Color = xFFC8C8C8
       Size.Width = 622.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
@@ -27,6 +44,7 @@ inherited Chat: TChat
         TabOrder = 0
         object lytFoto: TLayout
           Align = Left
+          Position.X = 34.000000000000000000
           Size.Width = 34.000000000000000000
           Size.Height = 34.000000000000000000
           Size.PlatformDefault = False
@@ -97,7 +115,7 @@ inherited Chat: TChat
           Margins.Left = 5.000000000000000000
           Margins.Top = 3.000000000000000000
           Margins.Bottom = 3.000000000000000000
-          Size.Width = 577.000000000000000000
+          Size.Width = 543.000000000000000000
           Size.Height = 28.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 1
@@ -106,13 +124,31 @@ inherited Chat: TChat
             AutoSize = True
             StyledSettings = [Family, Size]
             HitTest = True
-            Size.Width = 577.000000000000000000
+            Size.Width = 543.000000000000000000
             Size.Height = 28.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.StyleExt = {00070000000000000004000000}
             TextSettings.WordWrap = False
             Text = '[Nome]'
             TabOrder = 0
+          end
+        end
+        object lytVoltar: TLayout
+          Align = Left
+          Size.Width = 34.000000000000000000
+          Size.Height = 34.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 2
+          object btnVoltar: TButton
+            Align = Center
+            Size.Width = 34.000000000000000000
+            Size.Height = 34.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = 'priortoolbutton'
+            TabOrder = 2
+            Text = 'btnVoltar'
+            TextSettings.Trimming = None
+            OnClick = btnVoltarClick
           end
         end
       end
@@ -124,5 +160,11 @@ inherited Chat: TChat
       Size.PlatformDefault = False
       TabOrder = 0
     end
+  end
+  object aniTransicao: TFloatAnimation
+    Duration = 0.200000002980232200
+    PropertyName = 'Transicao'
+    StartValue = 0.000000000000000000
+    StopValue = 0.000000000000000000
   end
 end

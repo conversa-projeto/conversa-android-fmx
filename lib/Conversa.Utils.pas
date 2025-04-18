@@ -6,8 +6,8 @@ interface
 uses
    Conversa.Windows.Utils;
 {$ELSE}
-uses
-  Macapi.AppKit;
+//uses
+//  Macapi.AppKit;
 {$ENDIF}
 
 function IsControlKeyPressed: Boolean;

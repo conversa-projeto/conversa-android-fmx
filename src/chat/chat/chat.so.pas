@@ -202,6 +202,7 @@ end;
 
 function GetFileIconAsBitmap(const FileName: string): TBitmap;
 begin
+  Result := nil;
 end;
 {$ENDIF}
 

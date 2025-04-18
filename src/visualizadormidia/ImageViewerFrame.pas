@@ -5,12 +5,14 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.ExtCtrls, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, System.Math;
+  FMX.ExtCtrls, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, System.Math,
+  FMX.Gestures;
 
 type
   TImageViewerFrame = class(TFrame)
     lytClient: TLayout;
     ivImageViewer: TImageViewer;
+    GestureManager1: TGestureManager;
     procedure ivImageViewerDblClick(Sender: TObject);
     procedure ivImageViewerGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure ivImageViewerMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
@@ -131,8 +133,9 @@ begin
     Exit;
   if (LObj is TImageViewerFrame) and (EventInfo.GestureID = igiPan) then
     ivImageViewer.AniCalculations.TouchTracking := [ttVertical, ttHorizontal];
-  if (LObj is TImageViewerFrame) and (EventInfo.GestureID = igiZoom) then
+  if {(LObj is TImageViewerFrame) and }(EventInfo.GestureID = igiZoom) then
     begin
+
       ivImageViewer.AniCalculations.TouchTracking := [];
       if TInteractiveGestureFlag.gfBegin in EventInfo.Flags then
         ivImageViewer.Tag := EventInfo.Distance;

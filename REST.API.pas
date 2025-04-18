@@ -493,9 +493,12 @@ end;
 
 function TResponse.ToJSON: TJSONValue;
 begin
-  if not Assigned(FJSON) then
-    FJSON := TJSONObject.ParseJSONValue(FContent.Content.DataString);
-  Result := FJSON;
+  try
+    if not Assigned(FJSON) and Assigned(FContent.Content) and not FContent.Content.DataString.trim.IsEmpty then
+      FJSON := TJSONObject.ParseJSONValueUTF8(FContent.Content.Bytes, 0, FContent.Content.Size);
+    Result := FJSON;
+  except
+  end;
 end;
 
 function TResponse.ToJSONObject: TJSONObject;

@@ -27,7 +27,7 @@ uses
   Conversa.FrameBase,
   Conversa.Tipos,
   Conversa.Eventos,
-  Conversa.Chat.Listagem.Item;
+  Conversa.Chat.Listagem.Item, FMX.Ani;
 
 type
   TChat = class(TFrameBase)
@@ -41,12 +41,19 @@ type
     lblNome: TLabel;
     lytClient: TLayout;
     pthFotoDefault: TPath;
+    lytVoltar: TLayout;
+    btnVoltar: TButton;
+    rtgSombra: TRectangle;
+    aniSombra: TFloatAnimation;
+    aniTransicao: TFloatAnimation;
+    procedure btnVoltarClick(Sender: TObject);
   private
     FConversa: TConversa;
     FVisualizador: TChatVisualizador;
     Editor: TChatEditor;
     FMsgClicada: TFrame;
     FObjetoClicado: TObject;
+    FTransicao: Single;
     procedure AoVisualizar(Frame: TFrame);
     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
     procedure AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
@@ -54,7 +61,10 @@ type
     procedure AoChegarLimite(Limite: TLimite);
     procedure CriarControles;
     procedure AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
-    procedure Copiar;
+    procedure SetTransicao(const Value: Single);
+  published
+    property Transicao: Single read FTransicao write SetTransicao;
+//    procedure Copiar;
   public
     UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
@@ -68,6 +78,9 @@ type
     procedure Limpar;
     procedure ValidarVisualizacao;
     procedure FocoEditor;
+
+    procedure ExibirChat;
+    procedure OcultarChat;
   end;
 
 implementation
@@ -79,8 +92,7 @@ uses
   FMX.Clipboard,
   chat.conteudo.imagem,
   chat.conteudo.anexo,
-  Conversa.Visualizador.Midia,
-  PopupMenu;
+  Conversa.Visualizador.Midia;
 
 { TChat }
 
@@ -91,6 +103,7 @@ begin
   Name := 'chat_'+ FormatDateTime('yyyymmddHHnnsszzz', Now);
   Parent := TFmxObject(AOwner);
   Align := TAlignLayout.Client;
+  Transicao := TLayout(Parent).Width;
   Visible := True;
   lytFoto.Visible := False;
   lblNome.Visible := True;
@@ -136,6 +149,7 @@ procedure TChat.ValidarVisualizacao;
 var
   ID: Integer;
 begin
+  Exit;
   if Assigned(Conversa) then
     for ID in Visualizador.Visiveis do
       with Conversa.Mensagens.Get(ID) do
@@ -252,6 +266,12 @@ begin
   end;
 end;
 
+procedure TChat.btnVoltarClick(Sender: TObject);
+begin
+  inherited;
+  OcultarChat;
+end;
+
 procedure TChat.AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
 var
   Msg: TMensagem;
@@ -286,50 +306,50 @@ begin
     if (Button = TMouseButton.mbLeft) and Assigned(Sender) and Sender.InheritsFrom(TChatConteudoImagem) then
       TVisualizadorMidia.Exibir(TChatConteudoImagem(Sender).Bitmap)
     else
-    if Button = TMouseButton.mbRight then
-      TPopupMenu.New(Frame)
-        .Add('Copiar',
-          procedure(Sender: TObject)
-          begin
-            Copiar;
-          end
-        ).Exibir(Screen.MousePos);
+//    if Button = TMouseButton.mbRight then
+//      TPopupMenu.New(Frame)
+//        .Add('Copiar',
+//          procedure(Sender: TObject)
+//          begin
+//            Copiar;
+//          end
+//        ).Exibir(Screen.MousePos);
   end;
 end;
 
-procedure TChat.Copiar;
-var
-  Conteudos: TArray<TConteudo>;
-  Conteudo: TConteudo;
-  Texto: String;
-  svc: IFMXExtendedClipboardService;
-begin
-  if not Assigned(FMsgClicada) or not FMsgClicada.InheritsFrom(TChatMensagem) then
-    Exit;
-
-  if not Assigned(FObjetoClicado) then
-    Exit;
-
-  if (FObjetoClicado.InheritsFrom(TImage) and TImage(FObjetoClicado).Parent.InheritsFrom(TChatConteudoImagem)) then
-  begin
-    if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
-      svc.SetClipboard(TImage(FObjetoClicado).Bitmap);
-
-    Exit;
-  end;
-
-  Conteudos := FConversa.Mensagens.Get(TChatMensagem(FMsgClicada).ID).Conteudos;
-  Texto := EmptyStr;
-  for Conteudo in Conteudos do
-    if Conteudo.Tipo = TTipoConteudo.Texto then
-      Texto := Texto + IfThen(not Texto.Trim.IsEmpty, sLineBreak) + Conteudo.Conteudo;
-
-  if Texto.Trim.IsEmpty then
-    Exit;
-
-  if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
-    svc.SetText(Texto.Replace('&', '&&'));
-end;
+//procedure TChat.Copiar;
+//var
+//  Conteudos: TArray<TConteudo>;
+//  Conteudo: TConteudo;
+//  Texto: String;
+//  svc: IFMXExtendedClipboardService;
+//begin
+//  if not Assigned(FMsgClicada) or not FMsgClicada.InheritsFrom(TChatMensagem) then
+//    Exit;
+//
+//  if not Assigned(FObjetoClicado) then
+//    Exit;
+//
+//  if (FObjetoClicado.InheritsFrom(TImage) and TImage(FObjetoClicado).Parent.InheritsFrom(TChatConteudoImagem)) then
+//  begin
+//    if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+//      svc.SetClipboard(TImage(FObjetoClicado).Bitmap);
+//
+//    Exit;
+//  end;
+//
+//  Conteudos := FConversa.Mensagens.Get(TChatMensagem(FMsgClicada).ID).Conteudos;
+//  Texto := EmptyStr;
+//  for Conteudo in Conteudos do
+//    if Conteudo.Tipo = TTipoConteudo.Texto then
+//      Texto := Texto + IfThen(not Texto.Trim.IsEmpty, sLineBreak) + Conteudo.Conteudo;
+//
+//  if Texto.Trim.IsEmpty then
+//    Exit;
+//
+//  if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+//    svc.SetText(Texto.Replace('&', '&&'));
+//end;
 
 procedure TChat.AoChegarLimite(Limite: TLimite);
 begin
@@ -350,6 +370,37 @@ end;
 procedure TChat.FocoEditor;
 begin
   Editor.FocoEditorTexto;
+end;
+
+procedure TChat.SetTransicao(const Value: Single);
+begin
+  FTransicao := Value;
+  rctFundo.Margins.Left := Value;
+  rctFundo.Margins.Right := - Value;
+end;
+
+procedure TChat.ExibirChat;
+begin
+  Self.BringToFront;
+  Self.Visible := True;
+  aniTransicao.StartValue := Self.Width;
+  aniTransicao.StopValue := 0;
+  aniTransicao.Start;
+
+  aniSombra.StartValue := 0;
+  aniSombra.StopValue := 1;
+  aniSombra.Start;
+end;
+
+procedure TChat.OcultarChat;
+begin
+  aniSombra.StartValue := 1;
+  aniSombra.StopValue := 0;
+  aniSombra.Start;
+
+  aniTransicao.StartValue := 0;
+  aniTransicao.StopValue := Self.Width;
+  aniTransicao.Start;
 end;
 
 end.

@@ -17,6 +17,7 @@ uses
   Conversa.Eventos,
   Conversa.Tipos,
   Conversa.Memoria,
+  System.PushNotification,
   FMX.Dialogs;
 
 type
@@ -27,9 +28,15 @@ type
     procedure DataModuleDestroy(Sender: TObject);
   private
     FEventosNovasMensagens: TArray<TProc<Integer>>;
+//    procedure OnServiceConnectionReceiveNotification(Sender: TObject; const ANotification: TPushServiceNotification);
+    procedure OnServiceConnectionChange(Sender: TObject; AChange: TPushService.TChanges);
   public
+    FTokenFCM: String;
     FTokenJWT: String;
     FDadosApp: TDadosApp;
+
+    FPushService: TPushService;
+    FPushServiceConnection: TPushServiceConnection;
 
     procedure Login(sLogin, sSenha: String);
     function ServerOnline: Boolean;
@@ -70,9 +77,8 @@ uses
   System.Hash,
   System.Math,
   Conversa.Configuracoes,
-  Conversa.Notificacao,
-  Conversa.Windows.Overlay,
-  Conversa.Login;
+  Conversa.Login,
+  Conversa.DeviceInfo.Utils;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -97,10 +103,10 @@ var
   vJSON: TJSONValue;
 begin
   Result := inherited;
-  vJSON := Response.ToJSON;
   TMessageManager.DefaultManager.SendMessage(nil, TEventoStatusConexao.Create(IfThen(Response.Status = TResponseStatus.Sucess, 1, 0)));
   if Response.Status <> TResponseStatus.Sucess then
   begin
+    vJSON := Response.ToJSON;
     if Assigned(vJSON) and Assigned(vJSON.FindValue('error')) then
       raise Exception.Create(vJSON.GetValue<String>('error'))
     else
@@ -114,6 +120,14 @@ procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   FDadosApp := TDadosApp.New;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
+
+  FPushService := TPushServiceManager.Instance.GetServiceByName(TPushService.TServiceNames.FCM);
+  FPushServiceConnection := TPushServiceConnection.Create(FPushService);
+
+  FPushServiceConnection.OnChange := OnServiceConnectionChange;
+//  FPushServiceConnection.OnReceiveNotification := OnServiceConnectionReceiveNotification;
+
+  FPushServiceConnection.Active := True;
 end;
 
 procedure TDados.DataModuleDestroy(Sender: TObject);
@@ -122,6 +136,8 @@ begin
 end;
 
 procedure TDados.Login(sLogin, sSenha: String);
+var
+  joParam: TJSONObject;
 begin
   with TAPIConversa.Create do
   try
@@ -141,6 +157,36 @@ begin
           .Telefone(GetValue<String>('telefone'));
 
     FTokenJWT := Response.ToJSON.GetValue<String>('token');
+  finally
+    Free;
+  end;
+
+  with TAPIConversa.Create do
+  try
+    if Configuracoes.DispositivoId = 0 then
+    begin
+      Route('dispositivo');
+
+      with GetDeviceInfo do
+        joParam :=
+          TJSONObject.Create
+            .AddPair('nome', DeviceName)
+            .AddPair('modelo', Model)
+            .AddPair('versao_so', OSVersion)
+            .AddPair('plataforma', Platform)
+            .AddPair('usuario_id', FDadosApp.Usuario.ID);
+
+      if not FTokenFCM.Trim.IsEmpty then
+        joParam.AddPair('token_fcm', FTokenFCM);
+
+      Body(joParam);
+      PUT;
+      with Response.ToJSON do
+        Configuracoes.DispositivoId := GetValue<Integer>('id');
+
+      Configuracoes.Save;
+    end;
+
   finally
     Free;
   end;
@@ -259,6 +305,7 @@ begin
           TTipoConteudo.Texto: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
           TTipoConteudo.Imagem: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
           TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
+          TTipoConteudo.MensagemAudio: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
         end;
         Mensagem.conteudos.Add(MensagemConteudo);
       end;
@@ -347,9 +394,12 @@ end;
 function TDados.DownloadAnexo(sIdentificador: String): String;
 var
   sLocal: String;
+  sFilePath: String;
 begin
-  if TFile.Exists(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador) then
-    Exit(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
+  sLocal := PastaCache + PASTA_ANEXO;
+  sFilePath := sLocal + PathDelim + sIdentificador;
+  if TFile.Exists(sFilePath) then
+    Exit(sFilePath);
 
   with TAPIConversa.Create do
   try
@@ -362,14 +412,12 @@ begin
       Exit(EmptyStr);
     end;
 
-    sLocal := PastaDados + PASTA_ANEXO;
-
     if not TDirectory.Exists(sLocal) then
       TDirectory.CreateDirectory(sLocal);
 
-    Result := sLocal + PathDelim + sIdentificador;
+    Result := sFilePath;
 
-    Response.ToStream.SaveToFile(Result);
+    Response.ToStream.SaveToFile(sFilePath);
   finally
     Free;
   end;
@@ -403,7 +451,7 @@ begin
       begin
         oConteudo.AddPair('conteudo', Mensagem.conteudos[iConteudo].conteudo);
       end;
-      TTipoConteudo.Imagem, TTipoConteudo.Arquivo:
+      TTipoConteudo.Imagem, TTipoConteudo.Arquivo, TTipoConteudo.MensagemAudio:
       begin
         ss := TStringStream.Create;
         try
@@ -411,8 +459,8 @@ begin
 
           sIdentificador := THashSHA2.GetHashString(ss);
           ss.Position := 0;
-          ss.SaveToFile(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
-          Mensagem.conteudos[iConteudo].conteudo(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
+          ss.SaveToFile(PastaCache + PASTA_ANEXO + PathDelim + sIdentificador);
+          Mensagem.conteudos[iConteudo].conteudo(PastaCache + PASTA_ANEXO + PathDelim + sIdentificador);
           oConteudo.AddPair('conteudo', sIdentificador);
 
           // verifica se já não existe no servidor
@@ -631,7 +679,7 @@ end;
 
 procedure TDados.AtualizarContador(const Sender: TObject; const M: TMessage);
 begin
-  AtualizarContadorNotificacao(FDadosApp.Conversas.MensagensSemVisualizar);
+//  AtualizarContadorNotificacao(FDadosApp.Conversas.MensagensSemVisualizar);
 end;
 
 procedure TDados.VisualizarMensagem(Mensagem: TMensagem);
@@ -693,5 +741,45 @@ begin
     FreeAndNil(SaveDlg);
   end;
 end;
+
+procedure TDados.OnServiceConnectionChange(Sender: TObject; AChange: TPushService.TChanges);
+begin
+  if TPushService.TChange.DeviceToken in AChange then
+  begin
+    FTokenFCM := FPushService.DeviceTokenValue[TPushService.TDeviceTokenNames.DeviceToken];
+    if Configuracoes.DispositivoId <> 0 then
+    begin
+      with TAPIConversa.Create do
+      try
+        if Configuracoes.DispositivoId = 0 then
+        begin
+          Route('dispositivo');
+          Body(
+            TJSONObject.Create
+              .AddPair('id', Configuracoes.DispositivoId)
+              .AddPair('token_fcm', FTokenFCM)
+          );
+          POST;
+          with Response.ToJSON do
+            Configuracoes.DispositivoId := GetValue<Integer>('id');
+
+          Configuracoes.Save;
+        end;
+
+      finally
+        Free;
+      end;
+    end;
+  end;
+end;
+
+//procedure TDados.OnServiceConnectionReceiveNotification(Sender: TObject; const ANotification: TPushServiceNotification);
+//begin
+////  mmLog.Lines.Add('Push recebido ---');
+////  mmLog.Lines.Add('Chave: '+ ANotification.DataKey);
+////  mmLog.Lines.Add('JSON: '+ ANotification.Json.ToString);
+////  mmLog.Lines.Add('Data: '+ ANotification.DataObject.ToString);
+////  mmLog.Lines.Add('---');
+//end;
 
 end.

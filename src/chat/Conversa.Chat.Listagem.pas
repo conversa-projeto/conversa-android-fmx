@@ -24,7 +24,6 @@ uses
   Conversa.Chat.Listagem.Item,
   Conversa.Dados,
   Conversa.Chat,
-  Conversa.Notificacao,
   Conversa.Tipos,
   Conversa.Memoria,
   Conversa.Audio,
@@ -33,16 +32,10 @@ uses
 type
   TChatListagem = class(TFrameBase)
     lytClient: TLayout;
-    rctListaConversas: TRectangle;
     lstConversas: TListBox;
-    lytViewClient: TLayout;
     rctFundo: TRectangle;
     tmrExibir: TTimer;
-    lnSeparador: TLine;
     tmrUltima: TTimer;
-    Layout1: TLayout;
-    lblAvisoConversa: TLabel;
-    imgLogo: TImage;
     procedure tmrExibirTimer(Sender: TObject);
     procedure tmrUltimaTimer(Sender: TObject);
   private
@@ -68,6 +61,9 @@ var
 implementation
 
 {$R *.fmx}
+
+uses
+  Conversa.Tela.Inicial.view;
 
 class function TChatListagem.New(AOwner: TFmxObject): TChatListagem;
 begin
@@ -112,7 +108,7 @@ procedure TChatListagem.AoReceberMensagem(ConversaId: Integer);
 var
   Mensagens: TArrayMensagens;
   Msg: TMensagem;
-  AConteudos: TArray<TMensagemNotificacao>;
+//  AConteudos: TArray<TMensagemNotificacao>;
   Conversa: TConversa;
   sConteudo: String;
 begin
@@ -126,7 +122,7 @@ begin
   Msg := Mensagens[Pred(Length(Mensagens))];
   if not Assigned(Chat) or (Chat.Conversa.ID <> ConversaId) or not Self.IsFormActive then
   begin
-    AConteudos := [];
+//    AConteudos := [];
     if Msg.Conteudos.Count > 0 then
     begin
       case Msg.Conteudos[0].tipo of
@@ -134,20 +130,20 @@ begin
         TTipoConteudo.Imagem:  sConteudo := 'Imagem';
         TTipoConteudo.Arquivo: sConteudo := 'Arquivo';
       end;
-      AConteudos := [
-        TMensagemNotificacao.New
-          .ID(Msg.Conteudos[0].id)
-          .Usuario(IfThen(Conversa.Tipo = TTipoConversa.Chat, '', Msg.Remetente.Nome))
-          .Mensagem(sConteudo)
-      ];
+//      AConteudos := [
+//        TMensagemNotificacao.New
+//          .ID(Msg.Conteudos[0].id)
+//          .Usuario(IfThen(Conversa.Tipo = TTipoConversa.Chat, '', Msg.Remetente.Nome))
+//          .Mensagem(sConteudo)
+//      ];
     end;
-    TNotificacaoManager.Apresentar(
-      TNotificacao.New
-        .ChatId(ConversaId)
-        .Nome(Conversa.Descricao)
-        .Hora(Now)
-        .Conteudo(AConteudos)
-    );
+//    TNotificacaoManager.Apresentar(
+//      TNotificacao.New
+//        .ChatId(ConversaId)
+//        .Nome(Conversa.Descricao)
+//        .Hora(Now)
+//        .Conteudo(AConteudos)
+//    );
   end;
   if Assigned(Chat) and (Chat.Conversa.ID = ConversaId) then
     Chat.AdicionarMensagens(Dados.ExibirMensagem(ConversaId, True));
@@ -260,13 +256,15 @@ end;
 procedure TChatListagem.AbrirChat(Conversa: TConversa);
 begin
   if not Assigned(Chat) then
-    Chat := TChat.Create(lytViewClient)
-  else
-  if Assigned(Chat.Conversa) and (Chat.Conversa.ID = Conversa.ID) then
-    Exit;
+    Chat := TChat.Create(TelaInicial.rctFundo);
+//  else
+//  if Assigned(Chat.Conversa) and (Chat.Conversa.ID = Conversa.ID) then
+//    Exit;
 
   try
     Chat.Limpar;
+    Chat.ExibirChat;
+    Chat.Visible := True;
     AdicionarItemListagem(Conversa);
     SelecionarItemListagem(Conversa);
     Chat.Conversa := Conversa;
@@ -279,8 +277,9 @@ begin
     Chat.AdicionarMensagens(Dados.ExibirMensagem(Conversa.ID, False));
 
     Chat.FocoEditor;
+    Chat.PosicionarUltima;
 
-    TNotificacaoManager.Fechar(Conversa.ID);
+//    TNotificacaoManager.Fechar(Conversa.ID);
   finally
     // Posicionar na ultima mensagem
     tmrUltima.Enabled := True;

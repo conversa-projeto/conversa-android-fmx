@@ -3,7 +3,7 @@
 interface
 
 uses
-  Winapi.Windows,
+//  Winapi.Windows,
   System.SysUtils;
 
 type
@@ -17,14 +17,15 @@ type
     Senha: String;
     Notificacoes: TNotificacao;
     Escala: Single;
-    WindowPlacement: TWindowPlacement;
+    DispositivoId: Integer;
+//    WindowPlacement: TWindowPlacement;
     class procedure Load; static;
     class procedure Save; static;
   end;
 
 var
   Configuracoes: TConfiguracoes;
-  PastaDados: String;
+  PastaCache: String;
 
 implementation
 
@@ -34,11 +35,15 @@ uses
   System.IOUtils,
   System.JSON.Serializers;
 
+var
+  PastaDados: String;
+
 { TConfiguracoes }
 
 class procedure TConfiguracoes.Load;
 begin
-  PastaDados := TPath.GetAppPath + TPath.DirectorySeparatorChar +'Conversa'+ TPath.DirectorySeparatorChar;
+  PastaCache := TPath.GetCachePath + TPath.DirectorySeparatorChar;
+  PastaDados := TPath.GetHomePath + TPath.DirectorySeparatorChar +'Conversa'+ TPath.DirectorySeparatorChar;
   TDirectory.CreateDirectory(PastaDados);
 
   if not TFile.Exists(PastaDados +'conversa.json') then

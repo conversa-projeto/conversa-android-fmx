@@ -39,7 +39,6 @@ uses
   System.SysUtils,
   System.Math,
   System.StrUtils,
-  Winapi.Windows,
   Conversa.Dados,
   Conversa.Log;
 

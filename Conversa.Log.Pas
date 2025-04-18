@@ -28,7 +28,7 @@ begin
   if I = -1 then
   begin
     I := 0;
-    AssignFile(LogFile, PastaDados +'log.txt');
+//    AssignFile(LogFile, PastaDados +'log.txt');
     Rewrite(LogFile);
   end;
 
