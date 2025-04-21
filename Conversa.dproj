@@ -132,6 +132,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
         <Android_BackgroundColor>#FFFFFF</Android_BackgroundColor>
         <Android_DarkBackgroundColor>#000000</Android_DarkBackgroundColor>
+        <Android_AppId>1:932487823999:android:d00e5219b7185ebec1754a</Android_AppId>
+        <Android_ApiKey>AIzaSyCrnpFrANSxE7A-XFPXuLfoKoyxPitbhU8</Android_ApiKey>
+        <Android_GcmDefaultSenderId>932487823999</Android_GcmDefaultSenderId>
+        <Android_ProjectId>conversa-23858</Android_ProjectId>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;fmx;DbxCommonDriver;bindengine;IndyIPCommon;FireDACCommonDriver;IndyProtocols;IndyIPClient;dbxcds;bindcomp;FmxTeeUI;FireDACCommon;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;rtl;FireDACSqliteDriver;DbxClientDriver;RESTComponents;DBXSqliteDriver;IndyIPServer;fmxFireDAC;dbexpress;dsnapxml;soapmidas;inet;FireDAC;xmlrtl;tethering;dbrtl;dsnap;CloudService;CustomIPTransport;FMXTee;soaprtl;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -158,6 +162,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
         <Android_BackgroundColor>#FFFFFF</Android_BackgroundColor>
         <Android_DarkBackgroundColor>#000000</Android_DarkBackgroundColor>
+        <Android_AppId>1:932487823999:android:d00e5219b7185ebec1754a</Android_AppId>
+        <Android_ApiKey>AIzaSyCrnpFrANSxE7A-XFPXuLfoKoyxPitbhU8</Android_ApiKey>
+        <Android_GcmDefaultSenderId>932487823999</Android_GcmDefaultSenderId>
+        <Android_ProjectId>conversa-23858</Android_ProjectId>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FmxTeeUI;FireDACCommon;HGMComponents;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;Tee;RESTComponents;DBXSqliteDriver;vcl;vclactnband;TeeUI;IndyIPServer;fmxFireDAC;dbexpress;dsnapxml;dsnapcon;soapmidas;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;TMSWEBCorePkgLibDXE14;dbrtl;bindcompvcl;dsnap;fmxdae;TeeDB;TMSWEBCorePkgDXE14;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;FMXTee;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -420,8 +428,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
                     <Source Name="MainSource">Conversa.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\CodolexPlugin280.bpl">File C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\CodolexPlugin280.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\CodolexComponentsD280.bpl">File C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\CodolexComponentsD280.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
@@ -1765,9 +1775,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
