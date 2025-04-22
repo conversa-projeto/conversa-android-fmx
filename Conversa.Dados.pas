@@ -33,6 +33,7 @@ type
     FEventosNovasMensagens: TArray<TProc<Integer>>;
 //    procedure OnServiceConnectionReceiveNotification(Sender: TObject; const ANotification: TPushServiceNotification);
     procedure OnServiceConnectionChange(Sender: TObject; AChange: TPushService.TChanges);
+    procedure AtualizarTokenFCM;
   public
     FTokenFCM: String;
     FTokenJWT: String;
@@ -124,11 +125,12 @@ procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   FDadosApp := TDadosApp.New;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
-//  PushNotification;
+  PushNotification;
 end;
 
 procedure TDados.DataModuleDestroy(Sender: TObject);
 begin
+  FreeAndNil(FPushServiceConnection);
   FreeAndNil(FDadosApp);
 end;
 
@@ -161,35 +163,39 @@ begin
     Free;
   end;
 
-//  with TAPIConversa.Create do
-//  try
-//    if Configuracoes.DispositivoId = 0 then
-//    begin
-//      Route('dispositivo');
-//
-//      with GetDeviceInfo do
-//        joParam :=
-//          TJSONObject.Create
-//            .AddPair('nome', DeviceName)
-//            .AddPair('modelo', Model)
-//            .AddPair('versao_so', OSVersion)
-//            .AddPair('plataforma', Platform)
-//            .AddPair('usuario_id', FDadosApp.Usuario.ID);
-//
-//      if not FTokenFCM.Trim.IsEmpty then
-//        joParam.AddPair('token_fcm', FTokenFCM);
-//
-//      Body(joParam);
-//      PUT;
-//      with Response.ToJSON do
-//        Configuracoes.DispositivoId := GetValue<Integer>('id');
-//
-//      Configuracoes.Save;
-//    end;
-//
-//  finally
-//    Free;
-//  end;
+  if Configuracoes.DispositivoId = 0 then
+  begin
+    with TAPIConversa.Create do
+    try
+      begin
+        Route('dispositivo');
+
+        with GetDeviceInfo do
+          joParam :=
+            TJSONObject.Create
+              .AddPair('nome', DeviceName)
+              .AddPair('modelo', Model)
+              .AddPair('versao_so', OSVersion)
+              .AddPair('plataforma', Platform)
+              .AddPair('usuario_id', FDadosApp.Usuario.ID);
+
+        if not FTokenFCM.Trim.IsEmpty then
+          joParam.AddPair('token_fcm', FTokenFCM);
+
+        Body(joParam);
+        PUT;
+        with Response.ToJSON do
+          Configuracoes.DispositivoId := GetValue<Integer>('id');
+
+        Configuracoes.Save;
+      end;
+
+    finally
+      Free;
+    end;
+  end
+  else
+    AtualizarTokenFCM;
 end;
 
 function TDados.MensagensSemVisualizar: Integer;
@@ -747,32 +753,30 @@ begin
   if TPushService.TChange.DeviceToken in AChange then
   begin
     FTokenFCM := FPushService.DeviceTokenValue[TPushService.TDeviceTokenNames.DeviceToken];
-//    if Assigned(Configuracoes) then
-    begin
-    if Configuracoes.DispositivoId <> 0 then
-    begin
-      with TAPIConversa.Create do
-      try
-        if Configuracoes.DispositivoId = 0 then
-        begin
-          Route('dispositivo');
-          Body(
-            TJSONObject.Create
-              .AddPair('id', Configuracoes.DispositivoId)
-              .AddPair('token_fcm', FTokenFCM)
-          );
-          POST;
-          with Response.ToJSON do
-            Configuracoes.DispositivoId := GetValue<Integer>('id');
+    AtualizarTokenFCM;
+  end;
+end;
 
-          Configuracoes.Save;
-        end;
+procedure TDados.AtualizarTokenFCM;
+begin
+  if Configuracoes.DispositivoId = 0 then
+    Exit;
 
-      finally
-        Free;
-      end;
-    end;
-    end;
+  with TAPIConversa.Create do
+  try
+    Route('dispositivo');
+    Body(
+      TJSONObject.Create
+        .AddPair('id', Configuracoes.DispositivoId)
+        .AddPair('token_fcm', FTokenFCM)
+    );
+    POST;
+    with Response.ToJSON do
+      Configuracoes.DispositivoId := GetValue<Integer>('id');
+
+    Configuracoes.Save;
+  finally
+    Free;
   end;
 end;
 

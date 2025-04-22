@@ -4,7 +4,7 @@
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
     <PropertyGroup>
-        <DeviceId Condition="'$(Platform)'=='Android'"/>
+        <DeviceId Condition="'$(Platform)'=='Android'">RXCX7007ZQW</DeviceId>
         <DeviceId Condition="'$(Platform)'=='Android64'">RXCX7007ZQW</DeviceId>
     </PropertyGroup>
     <ItemGroup Condition="'$(Platform)'=='Win32'">
@@ -151,7 +151,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\styles.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\styles.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values\</RemoteDir>
             <RemoteName>styles.xml</RemoteName>
             <DeployClass>AndroidSplashStyles</DeployClass>
@@ -207,7 +207,7 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="bin\colors-night-v21.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\colors-night-v21.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values-night-v21\</RemoteDir>
             <RemoteName>colors.xml</RemoteName>
             <DeployClass>Android_ColorsDark</DeployClass>
@@ -317,7 +317,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\strings.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\strings.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values\</RemoteDir>
             <RemoteName>strings.xml</RemoteName>
             <DeployClass>Android_Strings</DeployClass>
@@ -355,7 +355,7 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="bin\colors.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\colors.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values\</RemoteDir>
             <RemoteName>colors.xml</RemoteName>
             <DeployClass>Android_Colors</DeployClass>
@@ -373,7 +373,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\libConversa.so" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\libConversa.so" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\library\lib\arm64-v8a\</RemoteDir>
             <RemoteName>libConversa.so</RemoteName>
             <DeployClass>ProjectOutput</DeployClass>
@@ -429,7 +429,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\styles-v21.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\styles-v21.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values-v21\</RemoteDir>
             <RemoteName>styles.xml</RemoteName>
             <DeployClass>AndroidSplashStylesV21</DeployClass>
@@ -537,7 +537,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\Conversa.classes" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\Conversa.classes" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\classes\</RemoteDir>
             <RemoteName>Conversa.classes</RemoteName>
             <DeployClass>AndroidClasses</DeployClass>
@@ -629,7 +629,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\AndroidManifest.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\AndroidManifest.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\</RemoteDir>
             <RemoteName>AndroidManifest.xml</RemoteName>
             <DeployClass>ProjectAndroidManifest</DeployClass>
@@ -665,7 +665,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\splash_image_def.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android64\splash_image_def.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\drawable\</RemoteDir>
             <RemoteName>splash_image_def.xml</RemoteName>
             <DeployClass>AndroidSplashImageDef</DeployClass>

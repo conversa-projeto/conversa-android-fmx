@@ -90,7 +90,7 @@ uses
 
 procedure TTelaInicial.Button1Click(Sender: TObject);
 begin
-  Dados.PushNotification;
+  ShowMessage(Dados.FTokenFCM);
 end;
 
 constructor TTelaInicial.Create(AOwner: TComponent);
