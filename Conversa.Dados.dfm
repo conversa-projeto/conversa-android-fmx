@@ -11,4 +11,8 @@ object Dados: TDados
     Left = 233
     Top = 24
   end
+  object NotificationCenter1: TNotificationCenter
+    Left = 280
+    Top = 216
+  end
 end

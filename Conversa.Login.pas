@@ -69,8 +69,8 @@ begin
       edtSenha.Text := Decrypt(Configuracoes.Senha);
       edtUsuario.SetFocus;
 
-      if not edtUsuario.Text.Trim.IsEmpty and not edtSenha.Text.Trim.IsEmpty then
-        rctBotaoEntrarClick(rctBotaoEntrar);
+//      if not edtUsuario.Text.Trim.IsEmpty and not edtSenha.Text.Trim.IsEmpty then
+//        rctBotaoEntrarClick(rctBotaoEntrar);
     end;
   end;
 end;

@@ -18,11 +18,14 @@ uses
   Conversa.Tipos,
   Conversa.Memoria,
   System.PushNotification,
-  FMX.Dialogs;
+  FMX.PushNotification.Android,
+  FMX.Dialogs,
+  System.Notification;
 
 type
   TDados = class(TDataModule)
     tmrAtualizarMensagens: TTimer;
+    NotificationCenter1: TNotificationCenter;
     procedure DataModuleCreate(Sender: TObject);
     procedure tmrAtualizarMensagensTimer(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
@@ -56,6 +59,7 @@ type
     function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
     procedure SalvarAnexo(const Mensagem: TMensagem; const Identificador: String);
+    procedure PushNotification;
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -120,14 +124,7 @@ procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   FDadosApp := TDadosApp.New;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
-
-  FPushService := TPushServiceManager.Instance.GetServiceByName(TPushService.TServiceNames.FCM);
-  FPushServiceConnection := TPushServiceConnection.Create(FPushService);
-
-  FPushServiceConnection.OnChange := OnServiceConnectionChange;
-//  FPushServiceConnection.OnReceiveNotification := OnServiceConnectionReceiveNotification;
-
-  FPushServiceConnection.Active := True;
+//  PushNotification;
 end;
 
 procedure TDados.DataModuleDestroy(Sender: TObject);
@@ -149,6 +146,9 @@ begin
     );
     POST;
 
+    if Response.Status <> TResponseStatus.Sucess then
+      Exit;
+
     with Response.ToJSON do
       FDadosApp.Usuario :=
         FDadosApp.Usuarios.GetOrAdd(GetValue<Integer>('id'))
@@ -161,35 +161,35 @@ begin
     Free;
   end;
 
-  with TAPIConversa.Create do
-  try
-    if Configuracoes.DispositivoId = 0 then
-    begin
-      Route('dispositivo');
-
-      with GetDeviceInfo do
-        joParam :=
-          TJSONObject.Create
-            .AddPair('nome', DeviceName)
-            .AddPair('modelo', Model)
-            .AddPair('versao_so', OSVersion)
-            .AddPair('plataforma', Platform)
-            .AddPair('usuario_id', FDadosApp.Usuario.ID);
-
-      if not FTokenFCM.Trim.IsEmpty then
-        joParam.AddPair('token_fcm', FTokenFCM);
-
-      Body(joParam);
-      PUT;
-      with Response.ToJSON do
-        Configuracoes.DispositivoId := GetValue<Integer>('id');
-
-      Configuracoes.Save;
-    end;
-
-  finally
-    Free;
-  end;
+//  with TAPIConversa.Create do
+//  try
+//    if Configuracoes.DispositivoId = 0 then
+//    begin
+//      Route('dispositivo');
+//
+//      with GetDeviceInfo do
+//        joParam :=
+//          TJSONObject.Create
+//            .AddPair('nome', DeviceName)
+//            .AddPair('modelo', Model)
+//            .AddPair('versao_so', OSVersion)
+//            .AddPair('plataforma', Platform)
+//            .AddPair('usuario_id', FDadosApp.Usuario.ID);
+//
+//      if not FTokenFCM.Trim.IsEmpty then
+//        joParam.AddPair('token_fcm', FTokenFCM);
+//
+//      Body(joParam);
+//      PUT;
+//      with Response.ToJSON do
+//        Configuracoes.DispositivoId := GetValue<Integer>('id');
+//
+//      Configuracoes.Save;
+//    end;
+//
+//  finally
+//    Free;
+//  end;
 end;
 
 function TDados.MensagensSemVisualizar: Integer;
@@ -747,6 +747,8 @@ begin
   if TPushService.TChange.DeviceToken in AChange then
   begin
     FTokenFCM := FPushService.DeviceTokenValue[TPushService.TDeviceTokenNames.DeviceToken];
+//    if Assigned(Configuracoes) then
+    begin
     if Configuracoes.DispositivoId <> 0 then
     begin
       with TAPIConversa.Create do
@@ -770,7 +772,19 @@ begin
         Free;
       end;
     end;
+    end;
   end;
+end;
+
+procedure TDados.PushNotification;
+begin
+  FPushService := TPushServiceManager.Instance.GetServiceByName(TPushService.TServiceNames.FCM);
+  FPushServiceConnection := TPushServiceConnection.Create(FPushService);
+
+  FPushServiceConnection.OnChange := OnServiceConnectionChange;
+//  FPushServiceConnection.OnReceiveNotification := OnServiceConnectionReceiveNotification;
+
+  FPushServiceConnection.Active := True;
 end;
 
 //procedure TDados.OnServiceConnectionReceiveNotification(Sender: TObject; const ANotification: TPushServiceNotification);

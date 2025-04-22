@@ -25,6 +25,8 @@ uses
   Conversa.ModalView,
   Conversa.Visualizador.Midia,
   Conversa.Eventos,
+  System.PushNotification,
+  FMX.PushNotification.Android,
   PascalStyleScript, FMX.Gestures;
 
 type
@@ -40,6 +42,7 @@ type
     txtAvisoConexao: TText;
     txtTitulo: TText;
     lytClientForm: TLayout;
+    Button1: TButton;
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -48,16 +51,23 @@ type
     procedure FormVirtualKeyboardShown(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: WideChar;
       Shift: TShiftState);
+    procedure Button1Click(Sender: TObject);
+//    procedure OnServiceConnectionReceiveNotification(Sender: TObject; const ANotification: TPushServiceNotification);
+//    procedure OnServiceConnectionChange(Sender: TObject; AChange: TPushService.TChanges);
   private
+//    FPushService: TPushService;
+//    FPushServiceConnection: TPushServiceConnection;
     procedure Iniciar;
     procedure ExibirTelaPrincipal;
     procedure StatusConexao(const Sender: TObject; const M: Conversa.Eventos.TMessage);
+//    procedure PushNotification;
   protected
     procedure CreateHandle; override;
     procedure DestroyHandle; override;
     procedure DoConversaClose;
   public
     ModalView: TModalView;
+//    FTokenFCM: String;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure DoConversaRestore;
@@ -71,11 +81,17 @@ implementation
 uses
   FMX.VirtualKeyboard,
   FMX.Platform,
+  System.JSON,
   Conversa.Conexao.AvisoInicioSistema,
   Conversa.Configurar.Conexao,
   Conversa.Chat.Listagem;
 
 {$R *.fmx}
+
+procedure TTelaInicial.Button1Click(Sender: TObject);
+begin
+  Dados.PushNotification;
+end;
 
 constructor TTelaInicial.Create(AOwner: TComponent);
 begin
@@ -172,6 +188,7 @@ begin
   inherited;
   ModalView := TModalView.Create(lytClientForm);
   tmrShow.Enabled := True;
+//  Dados.PushNotification;
 end;
 
 procedure TTelaInicial.tmrShowTimer(Sender: TObject);
@@ -242,5 +259,50 @@ procedure TTelaInicial.FormVirtualKeyboardHidden(Sender: TObject; KeyboardVisibl
 begin
   rctFundo.Align := TAlignLayout.Client
 end;
+
+//procedure TTelaInicial.PushNotification;
+//begin
+//  FPushService := TPushServiceManager.Instance.GetServiceByName(TPushService.TServiceNames.FCM);
+//  FPushServiceConnection := TPushServiceConnection.Create(FPushService);
+//
+//  FPushServiceConnection.OnChange := OnServiceConnectionChange;
+////  FPushServiceConnection.OnReceiveNotification := OnServiceConnectionReceiveNotification;
+//
+//  FPushServiceConnection.Active := True;
+//end;
+
+//procedure TTelaInicial.OnServiceConnectionChange(Sender: TObject; AChange: TPushService.TChanges);
+//begin
+//  if TPushService.TChange.DeviceToken in AChange then
+//  begin
+//    FTokenFCM := FPushService.DeviceTokenValue[TPushService.TDeviceTokenNames.DeviceToken];
+////    if Assigned(Configuracoes) then
+//    begin
+//    if Configuracoes.DispositivoId <> 0 then
+//    begin
+//      with TAPIConversa.Create do
+//      try
+//        if Configuracoes.DispositivoId = 0 then
+//        begin
+//          Route('dispositivo');
+//          Body(
+//            TJSONObject.Create
+//              .AddPair('id', Configuracoes.DispositivoId)
+//              .AddPair('token_fcm', FTokenFCM)
+//          );
+//          POST;
+//          with Response.ToJSON do
+//            Configuracoes.DispositivoId := GetValue<Integer>('id');
+//
+//          Configuracoes.Save;
+//        end;
+//
+//      finally
+//        Free;
+//      end;
+//    end;
+//    end;
+//  end;
+//end;
 
 end.

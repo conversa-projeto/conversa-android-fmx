@@ -25,7 +25,7 @@ object TelaInicial: TTelaInicial
     Fill.Color = claWhitesmoke
     HitTest = False
     Size.Width = 500.000000000000000000
-    Size.Height = 600.000000000000000000
+    Size.Height = 578.000000000000000000
     Size.PlatformDefault = False
     Stroke.Kind = None
     XRadius = 5.000000000000000000
@@ -33,7 +33,7 @@ object TelaInicial: TTelaInicial
     object lytClient: TLayout
       Align = Client
       Size.Width = 500.000000000000000000
-      Size.Height = 600.000000000000000000
+      Size.Height = 578.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 0
       object rctTitleBar: TRectangle
@@ -440,10 +440,20 @@ object TelaInicial: TTelaInicial
       object lytClientForm: TLayout
         Align = Client
         Size.Width = 500.000000000000000000
-        Size.Height = 520.000000000000000000
+        Size.Height = 498.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
       end
     end
+  end
+  object Button1: TButton
+    Align = Top
+    Size.Width = 500.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    Text = 'Button1'
+    TextSettings.Trimming = None
+    OnClick = Button1Click
   end
 end
