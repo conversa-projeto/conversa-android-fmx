@@ -685,7 +685,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\styles-v21.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\styles-v21.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values-v21\</RemoteDir>
             <RemoteName>styles.xml</RemoteName>
             <DeployClass>AndroidSplashStylesV21</DeployClass>
@@ -694,7 +694,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\splash_image_def.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\splash_image_def.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\drawable\</RemoteDir>
             <RemoteName>splash_image_def.xml</RemoteName>
             <DeployClass>AndroidSplashImageDef</DeployClass>
@@ -723,7 +723,7 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="bin\colors-night-v21.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\colors-night-v21.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values-night-v21\</RemoteDir>
             <RemoteName>colors.xml</RemoteName>
             <DeployClass>Android_ColorsDark</DeployClass>
@@ -732,7 +732,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\libConversa.so" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\libConversa.so" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\library\lib\armeabi-v7a\</RemoteDir>
             <RemoteName>libConversa.so</RemoteName>
             <DeployClass>ProjectOutput</DeployClass>
@@ -769,7 +769,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\Conversa.classes" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\Conversa.classes" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\classes\</RemoteDir>
             <RemoteName>Conversa.classes</RemoteName>
             <DeployClass>AndroidClasses</DeployClass>
@@ -832,7 +832,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\colors.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\colors.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values\</RemoteDir>
             <RemoteName>colors.xml</RemoteName>
             <DeployClass>Android_Colors</DeployClass>
@@ -886,7 +886,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\styles.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\styles.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values\</RemoteDir>
             <RemoteName>styles.xml</RemoteName>
             <DeployClass>AndroidSplashStyles</DeployClass>
@@ -895,7 +895,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="bin\strings.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\strings.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\res\values\</RemoteDir>
             <RemoteName>strings.xml</RemoteName>
             <DeployClass>Android_Strings</DeployClass>
@@ -951,7 +951,7 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="bin\AndroidManifest.xml" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="bin\Android\AndroidManifest.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Conversa\</RemoteDir>
             <RemoteName>AndroidManifest.xml</RemoteName>
             <DeployClass>ProjectAndroidManifest</DeployClass>
