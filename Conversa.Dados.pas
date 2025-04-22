@@ -39,6 +39,8 @@ type
     FTokenJWT: String;
     FDadosApp: TDadosApp;
 
+    FFezLogin: Boolean;
+
     FPushService: TPushService;
     FPushServiceConnection: TPushServiceConnection;
 
@@ -125,6 +127,7 @@ procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   FDadosApp := TDadosApp.New;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
+  FFezLogin := False;
   PushNotification;
 end;
 
@@ -162,6 +165,8 @@ begin
   finally
     Free;
   end;
+
+  FFezLogin := True;
 
   if Configuracoes.DispositivoId = 0 then
   begin
@@ -759,6 +764,10 @@ end;
 
 procedure TDados.AtualizarTokenFCM;
 begin
+  Exit;
+  if not FFezLogin then
+    Exit;
+
   if Configuracoes.DispositivoId = 0 then
     Exit;
 
