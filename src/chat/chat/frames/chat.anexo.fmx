@@ -1,0 +1,5 @@
+inherited ChatAnexo: TChatAnexo
+  Align = HorzCenter
+  Size.Width = 276.000000000000000000
+  Size.Height = 202.000000000000000000
+end

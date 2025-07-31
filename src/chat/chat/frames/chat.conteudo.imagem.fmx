@@ -1,0 +1,7 @@
+inherited ChatConteudoImagem: TChatConteudoImagem
+  Margins.Left = 1.000000000000000000
+  Margins.Right = 1.000000000000000000
+  Position.X = 1.000000000000000000
+  Size.Width = 148.000000000000000000
+  Size.Height = 188.000000000000000000
+end

@@ -1,0 +1,47 @@
+inherited ChatListagem: TChatListagem
+  Size.Width = 330.000000000000000000
+  Size.Height = 624.000000000000000000
+  object lytClient: TLayout
+    Align = Client
+    Size.Width = 330.000000000000000000
+    Size.Height = 624.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object rctFundo: TRectangle
+      Align = Client
+      Corners = [BottomLeft, BottomRight]
+      Fill.Color = claWhitesmoke
+      Size.Width = 330.000000000000000000
+      Size.Height = 624.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      XRadius = 10.000000000000000000
+      YRadius = 10.000000000000000000
+      object lstConversas: TListBox
+        Align = Scale
+        Size.Width = 329.999969482421900000
+        Size.Height = 624.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'transparentlistboxstyle'
+        TabOrder = 0
+        DisableFocusEffect = True
+        DefaultItemStyles.ItemStyle = ''
+        DefaultItemStyles.GroupHeaderStyle = ''
+        DefaultItemStyles.GroupFooterStyle = ''
+        Viewport.Width = 330.000000000000000000
+        Viewport.Height = 624.000000000000000000
+      end
+    end
+  end
+  object tmrExibir: TTimer
+    Interval = 500
+    OnTimer = tmrExibirTimer
+    Left = 312
+  end
+  object tmrUltima: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = tmrUltimaTimer
+    Left = 384
+  end
+end
